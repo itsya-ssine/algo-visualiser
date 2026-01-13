@@ -1,0 +1,5 @@
+{
+  "name": "AlgoStep Visualizer",
+  "description": "An interactive, debugger-like educational platform for visualizing a wide range of algorithms including sorting, searching, graph theory, and computational geometry.",
+  "requestFramePermissions": []
+}
