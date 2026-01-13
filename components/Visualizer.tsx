@@ -437,14 +437,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
     
     return (
       <div className="flex flex-col items-center justify-end h-full w-full px-1 lg:px-4 relative">
-        {isBinarySearch && markers.target !== undefined && (
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 bg-cyan-600/20 border border-cyan-500 rounded-lg px-3 py-1 pointer-events-none">
-            <span className="text-xs lg:text-sm font-bold text-cyan-300">
-              🔍 Target: <span className="text-cyan-100 font-mono">{markers.target}</span>
-            </span>
-          </div>
-        )}
-
         {Object.keys(pointers).length > 0 && (
           <div className="absolute top-2 left-0 right-0 px-1 lg:px-4 pointer-events-none">
             <div className="flex items-start justify-center w-full gap-0.5 lg:gap-1 relative" style={{ height: '20px' }}>

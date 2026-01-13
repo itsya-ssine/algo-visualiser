@@ -2,7 +2,7 @@
 import React from 'react';
 import { ALGORITHMS } from '../constants';
 import { Algorithm, AlgorithmCategory } from '../types';
-import { Terminal, Search, Share2, Layers, Cpu, Box, RotateCcw, X } from 'lucide-react';
+import { Terminal, Search, Share2, Layers, Cpu, Box, RotateCcw, Github, Instagram } from 'lucide-react';
 
 interface SidebarProps {
   selectedId: string;
@@ -69,8 +69,27 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedId, onSelect }) => {
       </div>
 
       <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 shrink-0">
-        <div className="text-[10px] text-zinc-500 text-center font-medium">
-          INTERACTIVE LEARNING PLATFORM
+        <div className="flex items-center justify-center gap-4">
+          <a
+            href="https://github.com/itsya-ssine"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            title="GitHub"
+            aria-label="GitHub"
+          >
+            <Github size={20} />
+          </a>
+          <a
+            href="https://www.instagram.com/0x_naoki?igsh=cGN5ejZpYmszMjR2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            title="Instagram"
+            aria-label="Instagram"
+          >
+            <Instagram size={20} />
+          </a>
         </div>
       </div>
     </div>

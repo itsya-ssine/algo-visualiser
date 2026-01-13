@@ -11,7 +11,7 @@ export const generateSnapshots = (algorithmId: string, inputData: any): Snapshot
     case 'quick-sort': generateQuickSort([...inputData], 0, inputData.length - 1, snapshots); break;
     case 'merge-sort': generateMergeSort([...inputData], snapshots); break;
     case 'heap-sort': generateHeapSort([...inputData], snapshots); break;
-    case 'binary-search': generateBinarySearch([...inputData].sort((a, b) => a - b), 42, snapshots); break;
+    case 'binary-search': generateBinarySearch([...inputData].sort((a, b) => a - b), 52, snapshots); break;
     case 'dijkstra': generateDijkstra(snapshots); break;
     case 'kruskal': generateKruskal(snapshots); break;
     case 'bellman-ford': generateBellmanFord(snapshots); break;
