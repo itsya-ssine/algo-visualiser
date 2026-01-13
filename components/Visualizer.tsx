@@ -95,78 +95,80 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
   const hasParents = parents && Object.keys(parents).length > 0;
 
   return (
-    <div className="w-full h-full flex flex-col lg:flex-row gap-4 p-3 overflow-hidden">
-      <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 rounded-xl border border-zinc-800/50 shadow-inner overflow-auto">
-        {renderSvg()}
-      </div>
-      
-      <div className="w-full lg:w-72 lg:max-h-full max-h-[200px] sm:max-h-[250px] bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 overflow-y-auto flex flex-col gap-6 shadow-2xl">
-        {hasDistances && (
+    <div className="w-full h-full overflow-auto p-3">
+      <div className="flex flex-col lg:flex-row gap-4 min-h-full">
+        <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 rounded-xl border border-zinc-800/50 shadow-inner flex items-center justify-center">
+          {renderSvg()}
+        </div>
+        
+        <div className="w-full lg:w-72 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 flex flex-col gap-6 shadow-2xl">
+          {hasDistances && (
+            <section>
+              <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                Node Distances
+              </h4>
+              <div className="grid grid-cols-1 gap-1.5">
+                {labels.map((lab, idx) => (
+                  <div key={`dist-${idx}`} className="flex justify-between items-center px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50 text-xs">
+                    <span className="font-bold text-zinc-300 truncate">{lab}</span>
+                    <span className="font-mono text-indigo-400 ml-2 shrink-0">
+                      {distances[idx] === Infinity || distances[idx] === undefined ? '∞' : distances[idx]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {hasParents && (
+            <section>
+              <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                Shortest Path Tree
+              </h4>
+              <div className="grid grid-cols-1 gap-1.5">
+                {labels.map((lab, idx) => (
+                  <div key={`parent-${idx}`} className="flex justify-between items-center px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50 text-xs">
+                    <span className="font-bold text-zinc-300 truncate">{lab}</span>
+                    <span className="font-mono text-cyan-400 ml-2 shrink-0">
+                      {parents[idx] === null || parents[idx] === undefined ? '-' : labels[parents[idx]]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section>
             <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-              Node Distances
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Edge Weights
             </h4>
-            <div className="grid grid-cols-1 gap-1.5">
-              {labels.map((lab, idx) => (
-                <div key={`dist-${idx}`} className="flex justify-between items-center px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50 text-xs">
-                  <span className="font-bold text-zinc-300 truncate">{lab}</span>
-                  <span className="font-mono text-indigo-400 ml-2 shrink-0">
-                    {distances[idx] === Infinity || distances[idx] === undefined ? '∞' : distances[idx]}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-1.5">
+              {graphState.edges.map((e, i) => {
+                const from = graphState.nodes[e.from]?.label || e.from;
+                const to = graphState.nodes[e.to]?.label || e.to;
+                const state = e.state || 'default';
+                
+                let borderColor = 'border-zinc-700/50';
+                let bgColor = 'bg-zinc-800/30';
+                let textColor = 'text-zinc-400';
+                
+                if (state === 'active') { borderColor = 'border-yellow-500/50'; bgColor = 'bg-yellow-500/10'; textColor = 'text-yellow-400'; }
+                else if (state === 'mst') { borderColor = 'border-emerald-500/50'; bgColor = 'bg-emerald-500/10'; textColor = 'text-emerald-400'; }
+                else if (state === 'path') { borderColor = 'border-indigo-500/50'; bgColor = 'bg-indigo-500/10'; textColor = 'text-indigo-400'; }
+
+                return (
+                  <div key={`edge-li-${i}`} className={`flex justify-between items-center px-3 py-1.5 rounded-lg border text-xs ${borderColor} ${bgColor} transition-colors`}>
+                    <span className={`font-bold ${textColor} truncate`}>{from} → {to}</span>
+                    <span className="font-mono text-xs font-semibold ml-2 shrink-0">{e.weight}</span>
+                  </div>
+                );
+              })}
             </div>
           </section>
-        )}
-
-        {hasParents && (
-          <section>
-            <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-              Shortest Path Tree
-            </h4>
-            <div className="grid grid-cols-1 gap-1.5">
-              {labels.map((lab, idx) => (
-                <div key={`parent-${idx}`} className="flex justify-between items-center px-3 py-1.5 bg-zinc-800/50 rounded-lg border border-zinc-700/50 text-xs">
-                  <span className="font-bold text-zinc-300 truncate">{lab}</span>
-                  <span className="font-mono text-cyan-400 ml-2 shrink-0">
-                    {parents[idx] === null || parents[idx] === undefined ? '-' : labels[parents[idx]]}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className="min-h-0 overflow-hidden flex flex-col">
-          <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Edge Weights
-          </h4>
-          <div className="space-y-1.5 overflow-y-auto flex-1">
-            {graphState.edges.map((e, i) => {
-              const from = graphState.nodes[e.from]?.label || e.from;
-              const to = graphState.nodes[e.to]?.label || e.to;
-              const state = e.state || 'default';
-              
-              let borderColor = 'border-zinc-700/50';
-              let bgColor = 'bg-zinc-800/30';
-              let textColor = 'text-zinc-400';
-              
-              if (state === 'active') { borderColor = 'border-yellow-500/50'; bgColor = 'bg-yellow-500/10'; textColor = 'text-yellow-400'; }
-              else if (state === 'mst') { borderColor = 'border-emerald-500/50'; bgColor = 'bg-emerald-500/10'; textColor = 'text-emerald-400'; }
-              else if (state === 'path') { borderColor = 'border-indigo-500/50'; bgColor = 'bg-indigo-500/10'; textColor = 'text-indigo-400'; }
-
-              return (
-                <div key={`edge-li-${i}`} className={`flex justify-between items-center px-3 py-1.5 rounded-lg border text-xs ${borderColor} ${bgColor} transition-colors shrink-0`}>
-                  <span className={`font-bold ${textColor} truncate`}>{from} → {to}</span>
-                  <span className="font-mono text-xs font-semibold ml-2 shrink-0">{e.weight}</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        </div>
       </div>
     </div>
   );
@@ -507,13 +509,15 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
   if (type === 'matrix' && Array.isArray(data)) {
     if (graphState) {
         return (
-            <div className="flex flex-col lg:flex-row items-stretch justify-center h-full w-full gap-4 overflow-hidden">
-                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 overflow-auto">
+            <div className="overflow-auto p-3 w-full h-full">
+              <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-full gap-4">
+                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
                     <MatrixView data={data} markers={markers} />
                 </div>
-                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 overflow-auto">
+                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
                   <GraphView graphState={graphState} markers={markers} extraData={data} />
                 </div>
+              </div>
             </div>
         );
     }
