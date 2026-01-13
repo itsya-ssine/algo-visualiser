@@ -83,7 +83,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row">
+    <div className="flex bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row h-dvh">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 

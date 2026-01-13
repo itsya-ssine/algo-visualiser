@@ -8,7 +8,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        html, body, #root {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        /* Use dynamic viewport height for mobile browsers */
+        html {
+            height: 100dvh;
+        }
+        body {
+            height: 100dvh;
+            font-family: 'Inter', sans-serif;
+        }
+        #root {
+            height: 100dvh;
+        }
         .code-font { font-family: 'Fira Code', monospace; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e1e1e; }
