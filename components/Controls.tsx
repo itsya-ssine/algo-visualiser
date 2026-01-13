@@ -28,7 +28,6 @@ const Controls: React.FC<ControlsProps> = ({
   return (
     <div className="flex flex-col gap-3 lg:gap-4 p-3 lg:p-4 bg-zinc-900 border-t border-zinc-800 shadow-2xl shrink-0">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-        {/* Playback Buttons */}
         <div className="flex items-center justify-center gap-2 lg:gap-3 order-2 lg:order-1">
           <button
             onClick={onReset}
@@ -59,7 +58,6 @@ const Controls: React.FC<ControlsProps> = ({
             <SkipForward size={20} />
           </button>
 
-          {/* Speed Selector */}
           <div className="flex items-center justify-end lg:w-auto order-3">
             <div className="flex items-center gap-2 bg-zinc-800 px-2 lg:px-3 py-1.5 rounded-lg border border-zinc-700">
               <FastForward size={14} className="text-zinc-500 hidden sm:block" />
@@ -77,7 +75,6 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         </div>
 
-        {/* Progress Slider */}
         <div className="flex-1 w-full lg:max-w-md lg:mx-8 order-1 lg:order-2">
           <div className="flex justify-between text-[10px] lg:text-xs text-zinc-500 mb-1.5 font-medium">
             <span>Step {currentStep + 1} / {totalSteps}</span>
@@ -89,7 +86,7 @@ const Controls: React.FC<ControlsProps> = ({
               min="0"
               max={Math.max(0, totalSteps - 1)}
               value={currentStep}
-              onChange={() => { }}
+              onChange={() => {}}
               className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 transition-all"
             />
           </div>
