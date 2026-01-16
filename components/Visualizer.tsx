@@ -15,7 +15,7 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
           <polygon points="0 0, 10 3.5, 0 7" fill="#52525b" />
         </marker>
       </defs>
-      
+
       {/* Edges */}
       {graphState.edges.map((edge, i) => {
         const fromNode = graphState.nodes[edge.from];
@@ -38,18 +38,18 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
           <g key={`edge-group-${i}`}>
             <line x1={fromNode.x} y1={fromNode.y} x2={toNode.x} y2={toNode.y}
               stroke={isActive ? '#facc15' : (isMst ? '#4ade80' : (isPath ? '#6366f1' : (isTargetEdge ? '#f472b6' : '#3f3f46')))}
-              strokeWidth={isActive || isMst || isPath || isTargetEdge ? 4 : 2} markerEnd="url(#arrowhead)" 
+              strokeWidth={isActive || isMst || isPath || isTargetEdge ? 4 : 2} markerEnd="url(#arrowhead)"
               className="transition-all duration-300" />
-            
+
             {/* Edge Weight Label with Background for better visibility */}
             <g transform={`translate(${midX}, ${midY})`}>
               <rect x="-12" y="-10" width="24" height="18" rx="4" fill="#18181b" className="opacity-90" />
-              <text 
-                x="0" y="3" 
-                fill={isActive || isTargetEdge ? "#ffffff" : "#a1a1aa"} 
-                fontSize="11" 
-                fontWeight="bold" 
-                textAnchor="middle" 
+              <text
+                x="0" y="3"
+                fill={isActive || isTargetEdge ? "#ffffff" : "#a1a1aa"}
+                fontSize="11"
+                fontWeight="bold"
+                textAnchor="middle"
                 className="pointer-events-none select-none"
               >
                 {edge.weight}
@@ -100,8 +100,8 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
         <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 rounded-xl border border-zinc-800/50 shadow-inner flex items-top justify-center">
           {renderSvg()}
         </div>
-        
-        <div className="w-full lg:w-72 lg:h-[calc(100vh-2rem)] lg:sticky lg:top-4 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 flex flex-col gap-6 shadow-2xl overflow-y-auto">
+
+        <div className="w-full lg:w-72 lg:sticky lg:top-4 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 flex flex-col gap-6 shadow-2xl overflow-y-auto">
           {hasDistances && (
             <section>
               <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
@@ -150,11 +150,11 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
                 const from = graphState.nodes[e.from]?.label || e.from;
                 const to = graphState.nodes[e.to]?.label || e.to;
                 const state = e.state || 'default';
-                
+
                 let borderColor = 'border-zinc-700/50';
                 let bgColor = 'bg-zinc-800/30';
                 let textColor = 'text-zinc-400';
-                
+
                 if (state === 'active') { borderColor = 'border-yellow-500/50'; bgColor = 'bg-yellow-500/10'; textColor = 'text-yellow-400'; }
                 else if (state === 'mst') { borderColor = 'border-emerald-500/50'; bgColor = 'bg-emerald-500/10'; textColor = 'text-emerald-400'; }
                 else if (state === 'path') { borderColor = 'border-indigo-500/50'; bgColor = 'bg-indigo-500/10'; textColor = 'text-indigo-400'; }
@@ -193,25 +193,30 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
   const calculatePositions = (nodes: TreeNode[]): { [key: number]: { x: number; y: number } } => {
     const positions: { [key: number]: { x: number; y: number } } = {};
     const depth = Math.ceil(Math.log2(nodes.length + 1));
-    const baseOffset = Math.min(150, svgSize.width / (Math.pow(2, Math.min(3, depth)) + 2));
-    
+    const horizontalPadding = 40;
+    const availableWidth = svgSize.width - horizontalPadding;
+    const baseOffset = availableWidth / 4;
+    const minXOffset = Math.max(25, svgSize.width / 20);
+
     const traverse = (idx: number, xPos: number, yPos: number, xOffset: number) => {
       if (idx >= nodes.length) return;
       positions[idx] = { x: xPos, y: yPos };
-      
+
       const leftChild = 2 * idx + 1;
       const rightChild = 2 * idx + 2;
-      const yGap = Math.max(60, svgSize.height / (depth + 2));
-      
+
+      const yGap = Math.min(80, svgSize.height / (depth + 1));
+      const nextOffset = Math.max(minXOffset, xOffset / 2);
+
       if (leftChild < nodes.length) {
-        traverse(leftChild, xPos - xOffset, yPos + yGap, Math.max(20, xOffset / 2));
+        traverse(leftChild, xPos - xOffset, yPos + yGap, nextOffset);
       }
       if (rightChild < nodes.length) {
-        traverse(rightChild, xPos + xOffset, yPos + yGap, Math.max(20, xOffset / 2));
+        traverse(rightChild, xPos + xOffset, yPos + yGap, nextOffset);
       }
     };
-    
-    traverse(0, svgSize.width / 2, 40, baseOffset);
+
+    traverse(0, svgSize.width / 2, 50, baseOffset);
     return positions;
   };
 
@@ -249,7 +254,7 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
 
           let fill = '#18181b';
           let stroke = '#52525b';
-          
+
           if (node.state === 'active') {
             stroke = '#facc15';
             fill = '#422006';
@@ -302,7 +307,7 @@ const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } 
   const fontSize = isMobile ? Math.max(8, Math.min(11, svgSize.width / 110)) : Math.max(10, Math.min(13, svgSize.width / 95));
   const detailFontSize = isMobile ? Math.max(6, Math.min(8, svgSize.width / 140)) : Math.max(8, Math.min(10, svgSize.width / 120));
   const strokeWidth = Math.max(2, svgSize.width / 350);
-  
+
   const calculateNodeX = (node: MergeNode) => {
     const spread = svgSize.width / (Math.pow(2, node.level) + 1);
     const indexAtLevel = nodes.filter(n => n.level === node.level).findIndex(n => n.id === node.id);
@@ -319,35 +324,35 @@ const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } 
   return (
     <div ref={containerRef} className="w-full h-full overflow-hidden flex flex-col">
       <div className="flex-1 overflow-auto w-full">
-        <svg ref={svgRef} className="w-full" style={{ minHeight: `${svgSize.height}px` }} 
-          viewBox={`0 0 ${svgSize.width} ${svgSize.height}`} preserveAspectRatio="xMidYMid meet"> 
+        <svg ref={svgRef} className="w-full" style={{ minHeight: `${svgSize.height}px` }}
+          viewBox={`0 0 ${svgSize.width} ${svgSize.height}`} preserveAspectRatio="xMidYMid meet">
           {nodes.map((node, idx) => {
             const parentLevel = node.level - 1;
             const parentNodes = nodes.filter(n => n.level === parentLevel);
-            const parentNode = parentNodes.find(p => 
+            const parentNode = parentNodes.find(p =>
               (p.left <= node.left && node.right <= p.right)
             );
-            
+
             if (!parentNode) return null;
-            
+
             const parentX = calculateNodeX(parentNode);
             const parentY = parentNode.level * levelHeight + 50;
             const childX = calculateNodeX(node);
             const childY = node.level * levelHeight + 50;
-            
+
             return (
-              <line key={`line-${idx}`} x1={parentX} y1={parentY} x2={childX} y2={childY} 
+              <line key={`line-${idx}`} x1={parentX} y1={parentY} x2={childX} y2={childY}
                 stroke="#3f3f46" strokeWidth={strokeWidth} strokeDasharray={node.state === 'completed' ? '0' : '4,2'} />
             );
           })}
-          
+
           {nodes.map((node) => {
             const x = calculateNodeX(node);
             const y = node.level * levelHeight + 50;
-            
+
             let fill = '#18181b';
             let stroke = '#52525b';
-            
+
             if (node.state === 'dividing') {
               stroke = '#facc15';
               fill = '#422006';
@@ -358,20 +363,20 @@ const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } 
               stroke = '#4ade80';
               fill = '#064e3b';
             }
-            
+
             return (
               <g key={node.id}>
                 <rect x={x - nodeWidth / 2} y={y - nodeHeight / 2} width={nodeWidth} height={nodeHeight} rx="6"
                   fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-                
+
                 <text x={x} y={y - 8} fill="white" fontSize={fontSize} fontWeight="bold" textAnchor="middle" className="pointer-events-none select-none">
                   [{node.left}..{node.right}]
                 </text>
-                
+
                 <text x={x} y={y + 8} fill="#a1a1aa" fontSize={detailFontSize} textAnchor="middle" className="pointer-events-none select-none">
                   size: {node.right - node.left + 1}
                 </text>
-                
+
                 <circle cx={x + nodeWidth / 2 - 8} cy={y - nodeHeight / 2 + 8} r="6" fill={stroke} />
                 <text x={x + nodeWidth / 2 - 8} y={y - nodeHeight / 2 + 11} fill="white" fontSize={detailFontSize - 1} fontWeight="bold" textAnchor="middle" className="pointer-events-none select-none">
                   {getStateLabel(node.state)}
@@ -386,37 +391,37 @@ const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } 
 };
 
 const MatrixView: React.FC<{ data: any, markers: any }> = ({ data, markers }) => {
-    return (
-        <div className="flex items-center justify-center h-full w-full p-2 overflow-auto">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 lg:p-4">
-          <table className="border-collapse">
-            <tbody>
-              {data.map((row: any, i: number) => (
-                <tr key={i}>
-                  {row.map((cell: any, j: number) => {
-                    const isKRowCol = markers.k === i || markers.k === j;
-                    const isTarget = markers.i === i && markers.j === j;
-                    const isPivot = i === markers.k && j === markers.k;
+  return (
+    <div className="flex items-center justify-center h-full w-full p-2 overflow-auto">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-2 lg:p-4">
+        <table className="border-collapse">
+          <tbody>
+            {data.map((row: any, i: number) => (
+              <tr key={i}>
+                {row.map((cell: any, j: number) => {
+                  const isKRowCol = markers.k === i || markers.k === j;
+                  const isTarget = markers.i === i && markers.j === j;
+                  const isPivot = i === markers.k && j === markers.k;
 
-                    let cellBg = 'bg-transparent';
-                    if (isTarget) cellBg = 'bg-indigo-600 text-white ring-2 ring-indigo-400 z-10';
-                    else if (isPivot) cellBg = 'bg-yellow-600 text-white';
-                    else if (isKRowCol) cellBg = 'bg-zinc-800 text-zinc-300';
-                    else cellBg = 'text-zinc-500';
+                  let cellBg = 'bg-transparent';
+                  if (isTarget) cellBg = 'bg-indigo-600 text-white ring-2 ring-indigo-400 z-10';
+                  else if (isPivot) cellBg = 'bg-yellow-600 text-white';
+                  else if (isKRowCol) cellBg = 'bg-zinc-800 text-zinc-300';
+                  else cellBg = 'text-zinc-500';
 
-                    return (
-                      <td key={j} className={`p-2 lg:p-4 border border-zinc-800 text-center font-mono text-[10px] lg:text-sm transition-colors ${cellBg}`}>
-                        {cell === Infinity ? '∞' : cell}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  return (
+                    <td key={j} className={`p-2 lg:p-4 border border-zinc-800 text-center font-mono text-[10px] lg:text-sm transition-colors ${cellBg}`}>
+                      {cell === Infinity ? '∞' : cell}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    );
+    </div>
+  );
 };
 
 const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
@@ -426,7 +431,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
     const maxVal = Math.max(...data, 1);
     const showIndices = data.length <= 20;
     const isBinarySearch = algorithmId === 'binary-search';
-    
+
     const pointers: { [key: string]: number } = {};
     if (markers) {
       Object.entries(markers).forEach(([key, value]) => {
@@ -435,7 +440,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
         }
       });
     }
-    
+
     return (
       <div className="flex flex-col items-center justify-end h-full w-full px-1 lg:px-4 relative">
         {Object.keys(pointers).length > 0 && (
@@ -447,7 +452,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
                   'i': '#ec4899', 'j': '#8b5cf6', 'mid': '#06b6d4', 'k': '#f59e0b', 'l': '#ef4444', 'r': '#ef4444', 'm': '#10b981'
                 };
                 const color = pointerColors[label] || '#a1a1aa';
-                
+
                 return (
                   <div key={`ptr-${label}`} className="absolute flex flex-col items-center"
                     style={{ left: `${position}%`, transform: 'translateX(-50%)' }}>
@@ -479,7 +484,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
             );
           })}
         </div>
-        
+
         {showIndices && (
           <div className="flex items-start justify-center w-full gap-0.5 lg:gap-1 h-1/6 pt-1">
             {data.map((_, idx) => (
@@ -508,18 +513,18 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
 
   if (type === 'matrix' && Array.isArray(data)) {
     if (graphState) {
-        return (
-            <div className="overflow-auto p-3 w-full h-full">
-              <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-full gap-4">
-                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
-                    <MatrixView data={data} markers={markers} />
-                </div>
-                <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
-                  <GraphView graphState={graphState} markers={markers} extraData={data} />
-                </div>
-              </div>
+      return (
+        <div className="overflow-auto p-3 w-full h-full">
+          <div className="flex flex-col lg:flex-row items-stretch justify-center min-h-full gap-4">
+            <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
+              <MatrixView data={data} markers={markers} />
             </div>
-        );
+            <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
+              <GraphView graphState={graphState} markers={markers} extraData={data} />
+            </div>
+          </div>
+        </div>
+      );
     }
     return <MatrixView data={data} markers={markers} />;
   }
@@ -551,20 +556,20 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
           )}
           {markers.line && Array.isArray(markers.line) && markers.line.length === 2 && markers.line[0] && markers.line[1] && (
             <>
-              <line 
-                x1={markers.line[0].x} 
-                y1={markers.line[0].y} 
-                x2={markers.line[1].x} 
-                y2={markers.line[1].y} 
-                stroke="#22d3ee" 
-                strokeWidth="3" 
+              <line
+                x1={markers.line[0].x}
+                y1={markers.line[0].y}
+                x2={markers.line[1].x}
+                y2={markers.line[1].y}
+                stroke="#22d3ee"
+                strokeWidth="3"
                 strokeDasharray="4,2"
                 opacity="0.8"
               />
             </>
           )}
           {markers.hull && markers.hull.length > 1 && (
-            <polygon points={markers.hull.map((p: Point) => `${p.x},${p.y}`).join(' ')} 
+            <polygon points={markers.hull.map((p: Point) => `${p.x},${p.y}`).join(' ')}
               fill="rgba(74, 222, 128, 0.1)" stroke="#4ade80" strokeWidth="2" strokeLinejoin="round" />
           )}
           {points.map((p, i) => {
@@ -582,7 +587,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
 
   if (type === 'math') {
     const mathData = data as any;
-    
+
     // Render matrix visualization
     if (mathData?.type === 'matrices') {
       return (
@@ -778,11 +783,10 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
               {(mathData.sequence as number[]).map((val, idx) => (
                 <div
                   key={idx}
-                  className={`px-4 py-3 rounded-lg border-2 font-mono font-bold text-base lg:text-lg transition-all ${
-                    mathData.activeIndices && mathData.activeIndices.includes(idx)
+                  className={`px-4 py-3 rounded-lg border-2 font-mono font-bold text-base lg:text-lg transition-all ${mathData.activeIndices && mathData.activeIndices.includes(idx)
                       ? 'bg-yellow-900/50 border-yellow-400 text-yellow-300'
                       : 'bg-zinc-800 border-purple-500/50 text-purple-300'
-                  }`}
+                    }`}
                 >
                   F({idx}) = {val}
                 </div>
