@@ -752,101 +752,232 @@ const generateWarshall = (snapshots: Snapshot[]) => {
 
 // --- GEOMETRY ---
 
-const distPoints = (p1: Point, p2: Point) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+const crossProduct = (o: Point, a: Point, b: Point) =>
+  (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+
+/* ---------- Orientation helpers ---------- */
+
+const area2 = (poly: Point[]) => {
+  let a = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i];
+    const q = poly[(i + 1) % poly.length];
+    a += p.x * q.y - p.y * q.x;
+  }
+  return a;
+};
+
+const ensureCCW = (hull: Point[]) => {
+  if (hull.length >= 3 && area2(hull) < 0) hull.reverse();
+  return hull;
+};
+
+/* ---------- Monotone Chain (robust base hull) ---------- */
+
+const bruteHull = (pts: Point[]): Point[] => {
+  const n = pts.length;
+  if (n <= 2) return pts;
+
+  const sorted = [...pts].sort((a, b) =>
+    a.x !== b.x ? a.x - b.x : a.y - b.y
+  );
+
+  const lower: Point[] = [];
+  for (const p of sorted) {
+    while (
+      lower.length >= 2 &&
+      crossProduct(lower[lower.length - 2], lower[lower.length - 1], p) <= 0
+    ) {
+      lower.pop();
+    }
+    lower.push(p);
+  }
+
+  const upper: Point[] = [];
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const p = sorted[i];
+    while (
+      upper.length >= 2 &&
+      crossProduct(upper[upper.length - 2], upper[upper.length - 1], p) <= 0
+    ) {
+      upper.pop();
+    }
+    upper.push(p);
+  }
+
+  lower.pop();
+  upper.pop();
+
+  return ensureCCW(lower.concat(upper));
+};
+
+/* ---------- Shamos Divide & Conquer ---------- */
 
 const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
-  const P = [...points].sort((a, b) => a.x - b.x);
-  let bestDist = Infinity;
-  let bestPair: [Point, Point] | null = null;
+  const P = [...points].sort((a, b) =>
+    a.x !== b.x ? a.x - b.x : a.y - b.y
+  );
 
-  snapshots.push({ type: 'points', data: {}, points: P.map(p => ({ ...p })), currentLine: 1, description: "Points sorted by X-coordinate" });
-
-  const addSnapshot = (activeIndices: number[], closestIndices: number[], description: string, showSplit?: number) => {
-    const markers: any = {};
-    if (showSplit !== undefined) markers.split = showSplit;
-    if (bestPair) {
-      markers.line = bestPair;
-      markers.bestDist = bestDist;
-    }
-
+  const addSnapshot = (
+    activeHull: Point[],
+    description: string,
+    splitX?: number,
+    extras?: any
+  ) => {
     snapshots.push({
-      type: 'points', data: {},
-      points: P.map((p, idx) => {
-        if (closestIndices.includes(idx)) return { ...p, state: 'closest' as any };
-        if (activeIndices.includes(idx)) return { ...p, state: 'active' as any };
+      type: 'points',
+      data: {},
+      points: P.map(p => {
+        if (activeHull.some(h => h.x === p.x && h.y === p.y))
+          return { ...p, state: 'hull' as any };
         return p;
       }),
-      markers,
+      markers: { split: splitX, hull: activeHull, ...extras },
       currentLine: 2,
       description
     });
   };
 
-  const solve = (low: number, high: number): number => {
-    if (high - low <= 3) {
-      let dMin = Infinity;
-      for (let i = low; i <= high; i++) {
-        for (let j = i + 1; j <= high; j++) {
-          let d = distPoints(P[i], P[j]);
-          addSnapshot([i, j], [], `Brute force: comparing P${i} and P${j}, dist=${d.toFixed(2)}`);
-
-          if (d < dMin) {
-            dMin = d;
-            if (d < bestDist) {
-              bestDist = d;
-              bestPair = [P[i], P[j]];
-              addSnapshot([i, j], [i, j], `✓ NEW BEST! P${i}-P${j} dist=${d.toFixed(2)}`);
-            }
-          }
-        }
-      }
-      return dMin;
+  const solve = (pts: Point[]): Point[] => {
+    if (pts.length <= 3) {
+      const hull = bruteHull(pts);
+      addSnapshot(
+        hull,
+        `Base Case: Finding Convex Hull for ${pts.length} points.`
+      );
+      return hull;
     }
 
-    const mid = Math.floor((low + high) / 2);
-    const midX = P[mid].x;
+    const mid = Math.floor(pts.length / 2);
+    const midX = pts[mid].x;
+
+    const leftHull = ensureCCW(solve(pts.slice(0, mid)));
+    const rightHull = ensureCCW(solve(pts.slice(mid)));
 
     addSnapshot(
-      P.slice(low, high + 1).map((_, i) => low + i),
       [],
-      `Dividing: split at x=${midX.toFixed(0)}`,
-      midX
+      `Merging Hulls across vertical split at x=${midX.toFixed(0)}.`,
+      midX,
+      { leftHull, rightHull }
     );
 
-    const dl = solve(low, mid);
-    const dr = solve(mid + 1, high);
-    let d = Math.min(dl, dr);
+    const nL = leftHull.length;
+    const nR = rightHull.length;
 
-    const strip: number[] = [];
-    for (let i = low; i <= high; i++) {
-      if (Math.abs(P[i].x - midX) < d) strip.push(i);
-    }
+    let rightmostL = 0;
+    for (let i = 1; i < nL; i++)
+      if (leftHull[i].x > leftHull[rightmostL].x) rightmostL = i;
 
-    strip.sort((a, b) => P[a].y - P[b].y);
-    for (let i = 0; i < strip.length; i++) {
-      for (let j = i + 1; j < strip.length && (P[strip[j]].y - P[strip[i]].y) < d; j++) {
-        let dStrip = distPoints(P[strip[i]], P[strip[j]]);
-        addSnapshot([strip[i], strip[j]], [], `Strip: checking P${strip[i]}-P${strip[j]}, dist=${dStrip.toFixed(2)}`);
+    let leftmostR = 0;
+    for (let i = 1; i < nR; i++)
+      if (rightHull[i].x < rightHull[leftmostR].x) leftmostR = i;
 
-        if (dStrip < bestDist) {
-          bestDist = dStrip;
-          bestPair = [P[strip[i]], P[strip[j]]];
-          addSnapshot([strip[i], strip[j]], [strip[i], strip[j]], `✓ BEST IN STRIP! dist=${dStrip.toFixed(2)}`);
-        }
+    /* ---------- Upper tangent ---------- */
+    let uL = rightmostL;
+    let uR = leftmostR;
+    let done = false;
+
+    while (!done) {
+      done = true;
+
+      while (
+        crossProduct(
+          leftHull[uL],
+          rightHull[uR],
+          leftHull[(uL + 1) % nL]
+        ) >= 0
+      ) {
+        uL = (uL + 1) % nL;
+        done = false;
+      }
+
+      while (
+        crossProduct(
+          rightHull[uR],
+          leftHull[uL],
+          rightHull[(uR - 1 + nR) % nR]
+        ) <= 0
+      ) {
+        uR = (uR - 1 + nR) % nR;
+        done = false;
       }
     }
-    return bestDist;
+
+    /* ---------- Lower tangent ---------- */
+    let lL = rightmostL;
+    let lR = leftmostR;
+    done = false;
+
+    while (!done) {
+      done = true;
+
+      while (
+        crossProduct(
+          leftHull[lL],
+          rightHull[lR],
+          leftHull[(lL - 1 + nL) % nL]
+        ) <= 0
+      ) {
+        lL = (lL - 1 + nL) % nL;
+        done = false;
+      }
+
+      while (
+        crossProduct(
+          rightHull[lR],
+          leftHull[lL],
+          rightHull[(lR + 1) % nR]
+        ) >= 0
+      ) {
+        lR = (lR + 1) % nR;
+        done = false;
+      }
+    }
+
+    /* ---------- Merge hulls ---------- */
+    const merged: Point[] = [];
+
+    let curr = uL;
+    merged.push(leftHull[curr]);
+    while (curr !== lL) {
+      curr = (curr + 1) % nL;
+      merged.push(leftHull[curr]);
+    }
+
+    curr = lR;
+    merged.push(rightHull[curr]);
+    while (curr !== uR) {
+      curr = (curr + 1) % nR;
+      merged.push(rightHull[curr]);
+    }
+
+    const finalMerged = bruteHull(merged); // safety guard
+
+    addSnapshot(
+      finalMerged,
+      `Merge Complete: Found tangents and stitched sub-hulls together.`
+    );
+
+    return finalMerged;
   };
 
-  solve(0, P.length - 1);
+  const finalHull = solve(P);
+
   snapshots.push({
-    type: 'points', data: {},
-    points: P.map(p => (bestPair && (p === bestPair[0] || p === bestPair[1]) ? { ...p, state: 'closest' as any } : p)),
-    markers: bestPair ? { line: bestPair, bestDist } : {},
+    type: 'points',
+    data: {},
+    points: P.map(p => {
+      if (finalHull.some(h => h.x === p.x && h.y === p.y))
+        return { ...p, state: 'hull' as any };
+      return p;
+    }),
+    markers: { hull: finalHull, closed: true },
     currentLine: 0,
-    description: `✓ Algorithm Complete! Closest pair distance: ${bestDist.toFixed(2)}`
+    description:
+      `Convex Envelope found! Using Shamos Divide and Conquer in O(n log n).`
   });
 };
+
 
 const generateQuickhull = (points: Point[], snapshots: Snapshot[]) => {
   let hull: Point[] = [];
