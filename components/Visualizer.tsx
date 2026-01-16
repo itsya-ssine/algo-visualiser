@@ -9,7 +9,7 @@ interface VisualizerProps {
 
 const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[] }, markers?: any, extraData?: any }> = ({ graphState, markers, extraData }) => {
   const renderSvg = () => (
-    <svg className="w-full h-full min-w-[300px] min-h-[300px]" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
+    <svg className="w-full h-full min-w-[300px] max-h-[400px]" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
       <defs>
         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="20" refY="3.5" orient="auto">
           <polygon points="0 0, 10 3.5, 0 7" fill="#52525b" />
@@ -97,11 +97,11 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
   return (
     <div className="w-full h-full overflow-auto p-3">
       <div className="flex flex-col lg:flex-row gap-4 min-h-full">
-        <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 rounded-xl border border-zinc-800/50 shadow-inner flex items-center justify-center">
+        <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 rounded-xl border border-zinc-800/50 shadow-inner flex items-top justify-center">
           {renderSvg()}
         </div>
         
-        <div className="w-full lg:w-72 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 flex flex-col gap-6 shadow-2xl">
+        <div className="w-full lg:w-72 lg:h-[calc(100vh-2rem)] lg:sticky lg:top-4 bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 flex flex-col gap-6 shadow-2xl overflow-y-auto">
           {hasDistances && (
             <section>
               <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
@@ -146,7 +146,7 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
               Edge Weights
             </h4>
             <div className="space-y-1.5">
-              {graphState.edges.map((e, i) => {
+              {graphState.edges.sort((a, b) => a.weight - b.weight).map((e, i) => {
                 const from = graphState.nodes[e.from]?.label || e.from;
                 const to = graphState.nodes[e.to]?.label || e.to;
                 const state = e.state || 'default';
