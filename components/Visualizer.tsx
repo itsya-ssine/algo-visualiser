@@ -193,10 +193,10 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
   const calculatePositions = (nodes: TreeNode[]): { [key: number]: { x: number; y: number } } => {
     const positions: { [key: number]: { x: number; y: number } } = {};
     const depth = Math.ceil(Math.log2(nodes.length + 1));
-    const horizontalPadding = 40;
+    const horizontalPadding = 20;
     const availableWidth = svgSize.width - horizontalPadding;
-    const baseOffset = availableWidth / 4;
-    const minXOffset = Math.max(25, svgSize.width / 20);
+    const baseOffset = availableWidth / 3.8;
+    const minXOffset = Math.max(20, svgSize.width / 20);
 
     const traverse = (idx: number, xPos: number, yPos: number, xOffset: number) => {
       if (idx >= nodes.length) return;
@@ -281,18 +281,20 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
 };
 
 const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } }> = ({ mergeState }) => {
-  const { nodes, array } = mergeState;
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const { nodes } = mergeState;
   const svgRef = React.useRef<SVGSVGElement>(null);
   const [svgSize, setSvgSize] = React.useState({ width: 800, height: 600 });
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = React.useState(typeof window !== 'undefined' && window.innerWidth < 768);
 
+  // Responsive logic
   React.useEffect(() => {
     const updateSize = () => {
       setIsMobile(window.innerWidth < 768);
       if (svgRef.current?.parentElement) {
-        const parent = svgRef.current.parentElement;
-        setSvgSize({ width: parent.clientWidth, height: parent.clientHeight - 60 });
+        setSvgSize({ 
+          width: svgRef.current.parentElement.clientWidth, 
+          height: Math.max(500, svgRef.current.parentElement.clientHeight) 
+        });
       }
     };
     updateSize();
@@ -300,92 +302,96 @@ const MergeView: React.FC<{ mergeState: { nodes: MergeNode[]; array: number[] } 
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // Constants
   const maxLevels = Math.max(...nodes.map(n => n.level), 0) + 1;
-  const levelHeight = Math.max(isMobile ? 70 : 90, svgSize.height / (maxLevels + 0.5));
-  const nodeWidth = isMobile ? Math.max(60, Math.min(90, svgSize.width / 10)) : Math.max(80, Math.min(120, svgSize.width / 8));
-  const nodeHeight = isMobile ? 50 : 65;
-  const fontSize = isMobile ? Math.max(8, Math.min(11, svgSize.width / 110)) : Math.max(10, Math.min(13, svgSize.width / 95));
-  const detailFontSize = isMobile ? Math.max(6, Math.min(8, svgSize.width / 140)) : Math.max(8, Math.min(10, svgSize.width / 120));
-  const strokeWidth = Math.max(2, svgSize.width / 350);
+  const paddingY = 40;
+  const levelHeight = (svgSize.height - paddingY * 2) / (maxLevels || 1);
+  const nodeWidth = isMobile ? 70 : 100;
+  const nodeHeight = isMobile ? 45 : 55;
 
-  const calculateNodeX = (node: MergeNode) => {
-    const spread = svgSize.width / (Math.pow(2, node.level) + 1);
-    const indexAtLevel = nodes.filter(n => n.level === node.level).findIndex(n => n.id === node.id);
-    return spread * (indexAtLevel + 1);
+  // Better X calculation: Centers nodes based on the count at that specific level
+  const getX = (node: MergeNode) => {
+    const levelNodes = nodes
+      .filter(n => n.level === node.level)
+      .sort((a, b) => a.left - b.left);
+    
+    const count = levelNodes.length;
+    const idx = levelNodes.findIndex(n => n.id === node.id);
+    
+    // Spread nodes evenly across the width
+    const spacing = svgSize.width / (count + 1);
+    return spacing * (idx + 1);
   };
 
-  const getStateLabel = (state?: string) => {
-    if (state === 'dividing') return 'DIV';
-    if (state === 'merging') return 'MRG';
-    if (state === 'completed') return 'OK';
-    return '';
+  const getStatusColors = (state?: string) => {
+    switch(state) {
+      case 'dividing': return { stroke: '#fbbf24', fill: '#451a03', glow: 'rgba(251, 191, 36, 0.4)' };
+      case 'merging': return { stroke: '#f97316', fill: '#431407', glow: 'rgba(249, 115, 22, 0.4)' };
+      case 'completed': return { stroke: '#4ade80', fill: '#064e3b', glow: 'rgba(74, 222, 128, 0.2)' };
+      default: return { stroke: '#52525b', fill: '#18181b', glow: 'transparent' };
+    }
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full overflow-hidden flex flex-col">
-      <div className="flex-1 overflow-auto w-full">
-        <svg ref={svgRef} className="w-full" style={{ minHeight: `${svgSize.height}px` }}
-          viewBox={`0 0 ${svgSize.width} ${svgSize.height}`} preserveAspectRatio="xMidYMid meet">
-          {nodes.map((node, idx) => {
-            const parentLevel = node.level - 1;
-            const parentNodes = nodes.filter(n => n.level === parentLevel);
-            const parentNode = parentNodes.find(p =>
-              (p.left <= node.left && node.right <= p.right)
-            );
+    <div className="w-full h-full bg-[#09090b] rounded-xl overflow-hidden border border-zinc-800">
+      <svg 
+        ref={svgRef} 
+        className="w-full h-full"
+        viewBox={`0 0 ${svgSize.width} ${svgSize.height}`}
+        preserveAspectRatio="xMidYMin meet"
+      >
+        {/* Connections */}
+        {nodes.map((node) => {
+          const parent = nodes.find(p => p.level === node.level - 1 && node.left >= p.left && node.right <= p.right);
+          if (!parent) return null;
 
-            if (!parentNode) return null;
+          const x1 = getX(parent), y1 = parent.level * levelHeight + paddingY;
+          const x2 = getX(node), y2 = node.level * levelHeight + paddingY;
 
-            const parentX = calculateNodeX(parentNode);
-            const parentY = parentNode.level * levelHeight + 50;
-            const childX = calculateNodeX(node);
-            const childY = node.level * levelHeight + 50;
+          return (
+            <path
+              key={`line-${node.id}`}
+              d={`M ${x1} ${y1} C ${x1} ${(y1 + y2) / 2}, ${x2} ${(y1 + y2) / 2}, ${x2} ${y2}`}
+              fill="none"
+              stroke={node.state ? getStatusColors(node.state).stroke : '#27272a'}
+              strokeWidth="2"
+              strokeDasharray={node.state === 'completed' ? "0" : "4 4"}
+              className="transition-all duration-500"
+            />
+          );
+        })}
 
-            return (
-              <line key={`line-${idx}`} x1={parentX} y1={parentY} x2={childX} y2={childY}
-                stroke="#3f3f46" strokeWidth={strokeWidth} strokeDasharray={node.state === 'completed' ? '0' : '4,2'} />
-            );
-          })}
+        {/* Nodes */}
+        {nodes.map((node) => {
+          const x = getX(node);
+          const y = node.level * levelHeight + paddingY;
+          const { stroke, fill, glow } = getStatusColors(node.state);
 
-          {nodes.map((node) => {
-            const x = calculateNodeX(node);
-            const y = node.level * levelHeight + 50;
-
-            let fill = '#18181b';
-            let stroke = '#52525b';
-
-            if (node.state === 'dividing') {
-              stroke = '#facc15';
-              fill = '#422006';
-            } else if (node.state === 'merging') {
-              stroke = '#f97316';
-              fill = '#7c2d12';
-            } else if (node.state === 'completed') {
-              stroke = '#4ade80';
-              fill = '#064e3b';
-            }
-
-            return (
-              <g key={node.id}>
-                <rect x={x - nodeWidth / 2} y={y - nodeHeight / 2} width={nodeWidth} height={nodeHeight} rx="6"
-                  fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
-
-                <text x={x} y={y - 8} fill="white" fontSize={fontSize} fontWeight="bold" textAnchor="middle" className="pointer-events-none select-none">
-                  [{node.left}..{node.right}]
-                </text>
-
-                <text x={x} y={y + 8} fill="#a1a1aa" fontSize={detailFontSize} textAnchor="middle" className="pointer-events-none select-none">
-                  size: {node.right - node.left + 1}
-                </text>
-
-                <circle cx={x + nodeWidth / 2 - 8} cy={y - nodeHeight / 2 + 8} r="6" fill={stroke} />
-                <text x={x + nodeWidth / 2 - 8} y={y - nodeHeight / 2 + 11} fill="white" fontSize={detailFontSize - 1} fontWeight="bold" textAnchor="middle" className="pointer-events-none select-none">
-                  {getStateLabel(node.state)}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+          return (
+            <g key={node.id} className="transition-all duration-700 ease-in-out">
+              {/* Outer Glow */}
+              <rect
+                x={x - nodeWidth / 2 - 4} y={y - nodeHeight / 2 - 4}
+                width={nodeWidth + 8} height={nodeHeight + 8} rx="12"
+                fill={glow} className="animate-pulse"
+              />
+              {/* Main Card */}
+              <rect
+                x={x - nodeWidth / 2} y={y - nodeHeight / 2}
+                width={nodeWidth} height={nodeHeight} rx="8"
+                fill={fill} stroke={stroke} strokeWidth="2"
+              />
+              {/* Content */}
+              <text x={x} y={y - 4} fill="white" fontSize={isMobile ? "10" : "12"} fontWeight="bold" textAnchor="middle" className="select-none">
+                {node.left === node.right ? array[node.left] : `${node.left}...${node.right}`}
+              </text>
+              <text x={x} y={y + 12} fill="#a1a1aa" fontSize={isMobile ? "8" : "10"} textAnchor="middle" className="select-none">
+                size: {node.right - node.left + 1}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 };
