@@ -15,7 +15,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
   ];
 
   return (
-    <div className="h-full w-full bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen w-full bg-zinc-950 flex flex-col justify-between relative p-4 sm:p-6 lg:p-8 overflow-y-auto">
       <div className="max-w-5xl w-full flex flex-col items-center z-10 text-center px-2 sm:px-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-indigo-400 text-xs sm:text-sm font-bold uppercase tracking-widest mb-6 sm:mb-8 animate-fade-in">
           <GraduationCap size={16} />
@@ -51,7 +51,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
         </div>
       </div>
 
-      <footer className="absolute bottom-6 sm:bottom-8 text-zinc-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] w-full text-center px-2">
+      <footer className="text-zinc-600 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] w-full text-center px-2 pb-4">
         Designed for Students &middot; ENSAKH-ALGO &middot; Yassine Elmajdoubi
       </footer>
     </div>
