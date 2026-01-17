@@ -7,10 +7,10 @@ interface WelcomePageProps {
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
   const features = [
-    { icon: <Layers className="text-indigo-400" />, title: "Sorting", desc: "Visualize how data finds its order." },
+    { icon: <Layers className="text-indigo-400" />, title: "Sorting", desc: "Visualize how sorting works." },
     { icon: <Search className="text-purple-400" />, title: "Searching", desc: "Master the art of efficiency." },
-    { icon: <Share2 className="text-cyan-400" />, title: "Graph Theory", desc: "Traverse complex networks." },
-    { icon: <Box className="text-emerald-400" />, title: "Geometry", desc: "Compute hulls and closest pairs." },
+    { icon: <Share2 className="text-cyan-400" />, title: "Graph", desc: "Traverse complex networks." },
+    { icon: <Box className="text-emerald-400" />, title: "Geometry", desc: "Compute hulls." },
     { icon: <Cpu className="text-orange-400" />, title: "Recursion", desc: "Trace logic step-by-step." }
   ];
 
