@@ -247,7 +247,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
 
   const createData = () => ({ distances: { ...d }, parents: { ...parent }, visited: Array.from(visited), nodeLabels: nodes.map(n => n.label) });
 
-  // Initial state: show starting node
   snapshots.push({
     type: 'graph',
     data: createData(),
@@ -268,7 +267,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
     nodes.forEach(n => !visited.has(n.id) && d[n.id] < min && (min = d[n.id], u = n.id));
     if (u === -1) break;
 
-    // Show selected node before processing
     snapshots.push({
       type: 'graph',
       data: createData(),
@@ -290,7 +288,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
 
     visited.add(u);
 
-    // Process each edge from the selected node
     let updated = false;
     edges.forEach(e => {
       let v = e.from === u ? e.to : (e.to === u ? e.from : -1);
@@ -298,7 +295,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
         const newDist = d[u] + e.weight;
         const oldDist = d[v];
 
-        // Show the comparison
         snapshots.push({
           type: 'graph',
           data: createData(),
@@ -322,7 +318,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
           parent[v] = u;
           updated = true;
 
-          // Show the update
           snapshots.push({
             type: 'graph',
             data: createData(),
@@ -340,7 +335,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
             description: `✓ Updated: ${nodes[v].label} distance improved from ${oldDist === Infinity ? '∞' : oldDist} to ${newDist}`
           });
         } else {
-          // Show no update needed
           snapshots.push({
             type: 'graph',
             data: createData(),
@@ -361,7 +355,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
       }
     });
 
-    // Mark node as visited
     snapshots.push({
       type: 'graph',
       data: createData(),
@@ -381,7 +374,6 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
     });
   }
 
-  // Final state
   snapshots.push({
     type: 'graph',
     data: createData(),
@@ -414,7 +406,6 @@ const generateKruskal = (snapshots: Snapshot[]) => {
     if (rootI !== rootJ) parent[rootI] = rootJ;
   };
 
-  // initial snapshot: show sorted edges in data
   snapshots.push({
     type: 'graph',
     data: { edges: sorted.map(e => ({ from: e.from, to: e.to, weight: e.weight, state: 'default' })) },
@@ -483,7 +474,6 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
 
   const createData = () => ({ distances: { ...d }, parents: { ...parent }, nodeLabels: nodes.map(n => n.label) });
 
-  // initial snapshot
   snapshots.push({
     type: 'graph',
     data: createData(),
@@ -495,7 +485,6 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
     description: `Initialize Bellman-Ford: distances set (source ${nodes[0].label} = 0)`
   });
 
-  // Treat edges as undirected similar to Dijkstra (relax both directions)
   const allEdges = [...edges, ...edges.map(e => ({ from: e.to, to: e.from, weight: e.weight }))];
 
   for (let iter = 0; iter < nodes.length - 1; iter++) {
@@ -519,7 +508,6 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
           description: `Iteration ${iter + 1}: Relaxed ${nodes[u].label}→${nodes[v].label}, distance ${old === Infinity ? '∞' : old} → ${d[v]}`
         });
       } else {
-        // optional: show comparison step
         snapshots.push({
           type: 'graph',
           data: createData(),
@@ -535,7 +523,6 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
     if (!anyUpdate) break;
   }
 
-  // Check for negative-weight cycles
   let negativeCycle = false;
   for (let e of allEdges) {
     const u = e.from, v = e.to;
@@ -555,7 +542,6 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
     }
   }
 
-  // Final snapshot
   snapshots.push({
     type: 'graph',
     data: createData(),
@@ -570,12 +556,14 @@ const generateBellmanFord = (snapshots: Snapshot[]) => {
 
 const generateFloydWarshall = (snapshots: Snapshot[]) => {
   const n = 4;
+
   const nodes: GraphNode[] = [
     { id: 0, x: 100, y: 100, label: 'A', state: 'unvisited' },
     { id: 1, x: 400, y: 100, label: 'B', state: 'unvisited' },
     { id: 2, x: 400, y: 300, label: 'C', state: 'unvisited' },
     { id: 3, x: 100, y: 300, label: 'D', state: 'unvisited' },
   ];
+
   const edges: GraphEdge[] = [
     { from: 0, to: 1, weight: 3 },
     { from: 1, to: 2, weight: 2 },
@@ -583,8 +571,10 @@ const generateFloydWarshall = (snapshots: Snapshot[]) => {
     { from: 2, to: 3, weight: 1 },
   ];
 
-  let dist = Array(n).fill(null).map(() => Array(n).fill(Infinity));
-  for (let i = 0; i < n; i++) dist[i][i] = 0;
+  const dist: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 0 : Infinity))
+  );
+
   edges.forEach(e => {
     dist[e.from][e.to] = e.weight;
     dist[e.to][e.from] = e.weight;
@@ -593,48 +583,53 @@ const generateFloydWarshall = (snapshots: Snapshot[]) => {
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
+
+        if (i === j || i === k || j === k) continue;
+
         const currentNodes = nodes.map(node => {
-          if (node.id === k) return { ...node, state: 'current' as const };
-          if (node.id === i || node.id === j) return { ...node, state: 'visited' as const };
-          return { ...node, state: 'unvisited' as const };
+          if (node.id === k) return { ...node, state: 'current' };
+          if (node.id === i || node.id === j) return { ...node, state: 'visited' };
+          return { ...node, state: 'unvisited' };
         });
 
-        if (dist[i][k] + dist[k][j] < dist[i][j]) {
-          dist[i][j] = dist[i][k] + dist[k][j];
-          snapshots.push({
-            type: 'matrix',
-            data: dist.map(r => [...r]),
-            markers: { k, i, j },
-            graphState: { nodes: currentNodes, edges },
-            currentLine: 4,
-            description: `Found shorter path: ${nodes[i].label} to ${nodes[j].label} via ${nodes[k].label}`
-          });
-        } else {
-          // Optional: add a step even if no update to show comparison
-          if (i !== j && i !== k && j !== k) {
+        if (dist[i][k] !== Infinity && dist[k][j] !== Infinity) {
+          const candidate = dist[i][k] + dist[k][j];
+
+          if (candidate < dist[i][j]) {
+            dist[i][j] = candidate;
+
             snapshots.push({
               type: 'matrix',
-              data: dist.map(r => [...r]),
+              data: dist.map(row => [...row]),
               markers: { k, i, j },
               graphState: { nodes: currentNodes, edges },
-              currentLine: 3,
-              description: `Comparing ${nodes[i].label}→${nodes[j].label} with detour via ${nodes[k].label}`
+              currentLine: 4,
+              description: `Updated shortest path: ${nodes[i].label} → ${nodes[j].label} via ${nodes[k].label}`
             });
+            continue;
           }
         }
+
+        snapshots.push({
+          type: 'matrix',
+          data: dist.map(row => [...row]),
+          markers: { k, i, j },
+          graphState: { nodes: currentNodes, edges },
+          currentLine: 3,
+          description: `No improvement for ${nodes[i].label} → ${nodes[j].label} via ${nodes[k].label}`
+        });
       }
     }
   }
 };
 
+
 const generatePrim = (snapshots: Snapshot[]) => {
   let { nodes, edges } = createDefaultGraph();
   let visited = new Set([0]);
   let mst: GraphEdge[] = [];
-  // sorted copy for data display
   let sortedEdges = [...edges].sort((a, b) => a.weight - b.weight);
 
-  // initial snapshot: show sorted edges in data
   snapshots.push({
     type: 'graph',
     data: { edges: sortedEdges.map(e => ({ from: e.from, to: e.to, weight: e.weight, state: 'default' })) },
@@ -675,87 +670,101 @@ const generatePrim = (snapshots: Snapshot[]) => {
 
 const generateWarshall = (snapshots: Snapshot[]) => {
   const n = 4;
-  const nodes: GraphNode[] = [
+
+  const baseNodes: GraphNode[] = [
     { id: 0, x: 100, y: 100, label: 'A', state: 'unvisited' },
     { id: 1, x: 400, y: 100, label: 'B', state: 'unvisited' },
     { id: 2, x: 400, y: 300, label: 'C', state: 'unvisited' },
     { id: 3, x: 100, y: 300, label: 'D', state: 'unvisited' },
   ];
+
   const edges: GraphEdge[] = [
     { from: 0, to: 1, weight: 1 },
     { from: 1, to: 2, weight: 1 },
     { from: 2, to: 3, weight: 1 },
   ];
 
-  let reach = Array(n).fill(null).map(() => Array(n).fill(0));
-  for (let i = 0; i < n; i++) reach[i][i] = 1;
+  const reach: boolean[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => i === j)
+  );
+
   edges.forEach(e => {
-    reach[e.from][e.to] = 1;
+    reach[e.from][e.to] = true;
   });
 
-  // Initial state
   snapshots.push({
     type: 'matrix',
-    data: reach.map(r => [...r]),
+    data: reach.map(r => r.map(v => (v ? 1 : Infinity))),
     markers: { k: -1, i: -1, j: -1 },
-    graphState: { nodes, edges },
+    graphState: {
+      nodes: baseNodes.map(n => ({ ...n })),
+      edges
+    },
     currentLine: 1,
-    description: `Warshall's Algorithm: Initial reachability matrix with direct edges`
+    description: `Initial reachability matrix (direct edges only)`
   });
 
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        const currentNodes = nodes.map(node => {
-          if (node.id === k) return { ...node, state: 'current' as const };
-          if (node.id === i || node.id === j) return { ...node, state: 'visited' as const };
-          return { ...node, state: 'unvisited' as const };
-        });
+        if (!reach[i][j] && reach[i][k] && reach[k][j]) {
+          reach[i][j] = true;
 
-        let prev = reach[i][j];
-        reach[i][j] = reach[i][j] || (reach[i][k] && reach[k][j]);
-
-        if (reach[i][j] !== prev) {
           snapshots.push({
             type: 'matrix',
-            data: reach.map(r => [...r]),
+            data: reach.map(r => r.map(v => (v ? 1 : Infinity))),
             markers: { k, i, j },
-            graphState: { nodes: currentNodes, edges },
+            graphState: {
+              nodes: baseNodes.map(node => {
+                if (node.id === k) return { ...node, state: 'current' };
+                if (node.id === i || node.id === j)
+                  return { ...node, state: 'visited' };
+                return { ...node, state: 'unvisited' };
+              }),
+              edges
+            },
             currentLine: 3,
-            description: `✓ Update! Via intermediate node ${nodes[k].label}: ${nodes[i].label} can reach ${nodes[j].label}`
-          });
-        } else if (i === n - 1 && j === n - 1 && k < n - 1) {
-          // Show progress after each k iteration
-          snapshots.push({
-            type: 'matrix',
-            data: reach.map(r => [...r]),
-            markers: { k, i: -1, j: -1 },
-            graphState: { nodes: nodes.map(node => node.id === k ? { ...node, state: 'current' as const } : { ...node, state: 'unvisited' as const }), edges },
-            currentLine: 2,
-            description: `Completed iteration k=${k} (${nodes[k].label} as intermediate node)`
+            description: `Path found: ${baseNodes[i].label} → ${baseNodes[j].label} via ${baseNodes[k].label}`
           });
         }
       }
     }
+
+    snapshots.push({
+      type: 'matrix',
+      data: reach.map(r => r.map(v => (v ? 1 : Infinity))),
+      markers: { k, i: -1, j: -1 },
+      graphState: {
+        nodes: baseNodes.map(node =>
+          node.id === k
+            ? { ...node, state: 'current' }
+            : { ...node, state: 'unvisited' }
+        ),
+        edges
+      },
+      currentLine: 2,
+      description: `Completed iteration with ${baseNodes[k].label} as intermediate`
+    });
   }
 
-  // Final state
+  // Final snapshot
   snapshots.push({
     type: 'matrix',
-    data: reach.map(r => [...r]),
+    data: reach.map(r => r.map(v => (v ? 1 : Infinity))),
     markers: { k: -1, i: -1, j: -1 },
-    graphState: { nodes: nodes.map(n => ({ ...n, state: 'visited' as const })), edges },
+    graphState: {
+      nodes: baseNodes.map(n => ({ ...n, state: 'visited' })),
+      edges
+    },
     currentLine: 4,
-    description: `✓ Algorithm Complete! Transitive closure computed - matrix shows all reachable pairs`
+    description: `✓ Transitive closure complete — matrix shows all reachable pairs`
   });
 };
 
-// --- GEOMETRY ---
 
+// --- GEOMETRY ---
 const crossProduct = (o: Point, a: Point, b: Point) =>
   (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-
-/* ---------- Orientation helpers ---------- */
 
 const area2 = (poly: Point[]) => {
   let a = 0;
@@ -771,8 +780,6 @@ const ensureCCW = (hull: Point[]) => {
   if (hull.length >= 3 && area2(hull) < 0) hull.reverse();
   return hull;
 };
-
-/* ---------- Monotone Chain (robust base hull) ---------- */
 
 const bruteHull = (pts: Point[]): Point[] => {
   const n = pts.length;
@@ -810,8 +817,6 @@ const bruteHull = (pts: Point[]): Point[] => {
 
   return ensureCCW(lower.concat(upper));
 };
-
-/* ---------- Shamos Divide & Conquer ---------- */
 
 const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
   const P = [...points].sort((a, b) =>
@@ -872,7 +877,6 @@ const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
     for (let i = 1; i < nR; i++)
       if (rightHull[i].x < rightHull[leftmostR].x) leftmostR = i;
 
-    /* ---------- Upper tangent ---------- */
     let uL = rightmostL;
     let uR = leftmostR;
     let done = false;
@@ -903,7 +907,6 @@ const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
       }
     }
 
-    /* ---------- Lower tangent ---------- */
     let lL = rightmostL;
     let lR = leftmostR;
     done = false;
@@ -934,7 +937,6 @@ const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
       }
     }
 
-    /* ---------- Merge hulls ---------- */
     const merged: Point[] = [];
 
     let curr = uL;
@@ -951,7 +953,7 @@ const generateShamos = (points: Point[], snapshots: Snapshot[]) => {
       merged.push(rightHull[curr]);
     }
 
-    const finalMerged = bruteHull(merged); // safety guard
+    const finalMerged = bruteHull(merged);
 
     addSnapshot(
       finalMerged,
@@ -1031,7 +1033,6 @@ const generateQuickhull = (points: Point[], snapshots: Snapshot[]) => {
     const pMax = candidates[idx];
     hull.push(pMax);
 
-    // Sort hull for visualization
     const centerX = hull.reduce((a, b) => a + b.x, 0) / hull.length;
     const centerY = hull.reduce((a, b) => a + b.y, 0) / hull.length;
     hull.sort((a, b) => Math.atan2(a.y - centerY, a.x - centerX) - Math.atan2(b.y - centerY, b.x - centerX));
@@ -1059,7 +1060,6 @@ const generateQuickhull = (points: Point[], snapshots: Snapshot[]) => {
 };
 
 // --- MATH ---
-
 const generateStrassen = (snapshots: Snapshot[]) => {
   const a = [[1, 2], [3, 4]];
   const b = [[5, 6], [7, 8]];

@@ -38,15 +38,6 @@ export interface TreeNode {
   state: 'default' | 'active' | 'highlight' | 'sorted';
 }
 
-// Added MergeNode interface to support Merge Sort visualization
-export interface MergeNode {
-  id: number;
-  left: number;
-  right: number;
-  state?: 'dividing' | 'merging' | 'completed';
-  level: number;
-}
-
 export interface Snapshot {
   // Updated type union to include 'tree' and 'merge' for extended visualization support
   type: 'array' | 'graph' | 'grid' | 'matrix' | 'points' | 'math' | 'tree' | 'merge';

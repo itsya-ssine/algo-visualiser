@@ -327,7 +327,7 @@ export const MergeView: React.FC<{
       width="100%"
       height="100%"
       viewBox={`0 0 ${width} ${(maxLevel + 1) * levelHeight + 60}`}
-      
+
     >
       {/* Connections */}
       {nodes.map(node => {
@@ -434,7 +434,7 @@ const MatrixView: React.FC<{ data: any, markers: any }> = ({ data, markers }) =>
                   else cellBg = 'text-zinc-500';
 
                   return (
-                    <td key={j} className={`p-2 lg:p-4 border border-zinc-800 text-center font-mono text-[10px] lg:text-sm transition-colors ${cellBg}`}>
+                    <td key={j} className={`p-2 lg:p-4 w-16 h-16 border border-zinc-800 text-center font-mono text-[16px] transition-colors ${cellBg}`}>
                       {cell === Infinity ? '∞' : cell}
                     </td>
                   );
@@ -543,7 +543,7 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
             <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
               <MatrixView data={data} markers={markers} />
             </div>
-            <div className="flex-1 w-full min-h-[250px] sm:min-h-[300px] lg:min-h-0">
+            <div className="flex-1 w-full min-h-[250px] flex sm:min-h-[300px] lg:min-h-0 bg-zinc-950/20 ">
               <GraphView graphState={graphState} markers={markers} extraData={data} />
             </div>
           </div>
@@ -808,8 +808,8 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
                 <div
                   key={idx}
                   className={`px-4 py-3 rounded-lg border-2 font-mono font-bold text-base lg:text-lg transition-all ${mathData.activeIndices && mathData.activeIndices.includes(idx)
-                      ? 'bg-yellow-900/50 border-yellow-400 text-yellow-300'
-                      : 'bg-zinc-800 border-purple-500/50 text-purple-300'
+                    ? 'bg-yellow-900/50 border-yellow-400 text-yellow-300'
+                    : 'bg-zinc-800 border-purple-500/50 text-purple-300'
                     }`}
                 >
                   F({idx}) = {val}
