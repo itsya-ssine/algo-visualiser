@@ -15,12 +15,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
   ];
 
   return (
-    <div className="h-screen w-full bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden p-4 sm:p-6 lg:p-8">
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/30 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/30 blur-[120px] rounded-full" />
-      </div>
-
+    <div className="h-full w-full bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden p-4 sm:p-6 lg:p-8">
       <div className="max-w-5xl w-full flex flex-col items-center z-10 text-center px-2 sm:px-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-indigo-400 text-xs sm:text-sm font-bold uppercase tracking-widest mb-6 sm:mb-8 animate-fade-in">
           <GraduationCap size={16} />
