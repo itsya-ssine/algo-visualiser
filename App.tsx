@@ -91,7 +91,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row">
+    <div className="flex h-dvh bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row">
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
