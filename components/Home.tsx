@@ -16,10 +16,10 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
 
   return (
     <div className="min-h-dvh w-full bg-zinc-950 flex flex-col">
-      
+
       <main className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 lg:p-20">
         <div className="max-w-6xl w-full flex flex-col items-center text-center">
-          
+
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-indigo-400 text-xs sm:text-sm font-bold uppercase tracking-widest mb-8 animate-fade-in">
             <GraduationCap size={16} />
             <span>Educational Visualizer</span>
@@ -40,7 +40,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
             <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
           </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
             {features.map((f, i) => (
               <div
                 key={i}
@@ -54,6 +54,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
               </div>
             ))}
           </div>
+
         </div>
       </main>
 
