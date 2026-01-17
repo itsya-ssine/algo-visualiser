@@ -603,178 +603,136 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
   if (type === 'math') {
     const mathData = data as any;
 
-    if (mathData?.type === 'matrices') {
+    if (mathData?.type === 'matrices' || mathData?.type === 'submatrices' || mathData?.type === 'mvalue' || mathData?.type === 'result') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="space-y-6 max-w-2xl">
-            <h2 className="text-center text-indigo-300 text-lg lg:text-xl font-bold">{mathData.title}</h2>
-            <div className="grid grid-cols-2 gap-8">
-              {Object.entries(mathData.matrices).map(([name, matrix]: any) => (
-                <div key={name} className="space-y-2">
-                  <div className="text-center text-indigo-400 font-semibold">{name}</div>
-                  <div className="bg-zinc-800 p-4 rounded border border-zinc-700">
-                    {(matrix as number[][]).map((row, i) => (
-                      <div key={i} className="flex gap-3 justify-center font-mono text-indigo-300">
-                        {row.map((val, j) => (
-                          <div key={j} className="w-8 h-8 bg-zinc-900 rounded flex items-center justify-center border border-indigo-500/50">
-                            {val}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
+          <div className="space-y-6 max-w-3xl">
+            {mathData.title && (
+              <h2 className="text-center text-indigo-300 text-lg lg:text-xl font-bold">{mathData.title}</h2>
+            )}
+
+            {mathData.type === 'matrices' && (
+              <div className="grid grid-cols-2 gap-8 justify-center">
+                {Object.entries(mathData.matrices).map(([name, matrix]: any) => (
+                  <div key={name} className="space-y-2 text-center">
+                    <div className="text-indigo-400 font-semibold">{name}</div>
+                    <div className="bg-zinc-800 p-4 rounded border border-zinc-700">
+                      {(matrix as number[][]).map((row, i) => (
+                        <div key={i} className="flex gap-2 justify-center">
+                          {row.map((val, j) => (
+                            <div key={j} className="w-12 h-12 flex items-center justify-center border border-indigo-500/50 bg-zinc-900 font-mono font-bold text-lg">
+                              {val}
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
+                ))}
+              </div>
+            )}
 
-    if (mathData?.type === 'submatrices') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="space-y-6 max-w-2xl">
-            <h2 className="text-center text-indigo-300 text-lg lg:text-xl font-bold">{mathData.title}</h2>
-            <div className="grid grid-cols-2 gap-8">
-              {Object.entries(mathData.submatrices).map(([matName, elements]: any) => (
-                <div key={matName} className="space-y-2">
-                  <div className="text-center text-indigo-400 font-semibold">{matName} Quadrants</div>
-                  <div className="bg-zinc-800 p-4 rounded border border-zinc-700 grid grid-cols-2 gap-2">
-                    {Object.entries(elements).map(([quad, val]: any) => (
-                      <div key={quad} className="bg-zinc-900 p-3 rounded border border-indigo-500/50 text-center">
-                        <div className="text-sm text-indigo-400 font-mono">{quad}</div>
-                        <div className="text-lg font-bold text-indigo-300">{val}</div>
-                      </div>
-                    ))}
+            {mathData.type === 'submatrices' && (
+              <div className="grid grid-cols-2 gap-6">
+                {Object.entries(mathData.submatrices).map(([matrixName, quadrants]: any) => (
+                  <div key={matrixName} className="space-y-2">
+                    <div className="text-center text-indigo-400 font-semibold">{matrixName} Quadrants</div>
+                    <div className="grid grid-cols-2 gap-2 bg-zinc-800 p-4 rounded border border-zinc-700">
+                      {Object.entries(quadrants).map(([quad, val]: any) => (
+                        <div key={quad} className="bg-zinc-900 p-3 rounded border border-indigo-500/50 text-center font-mono">
+                          <div className="text-sm text-indigo-400">{quad}</div>
+                          <div className="text-lg font-bold text-indigo-300">{val}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {mathData.type === 'mvalue' && (
+              <div className="min-w-400">
+                <div className="bg-zinc-900 p-6 rounded-xl border border-green-500/50 flex flex-col items-center justify-center min-w-[300px]">
+                  <div className="text-indigo-400 mb-2">{mathData.formula}</div>
+                  <div className="text-green-400 text-2xl font-bold">{mathData.result}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
+              </div>
+            )}
 
-    if (mathData?.type === 'mvalue') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="bg-zinc-800 p-6 lg:p-10 rounded-xl border border-indigo-500/50 max-w-xl space-y-4">
-            <h2 className="text-center text-indigo-300 text-lg font-bold">{mathData.title}</h2>
-            <div className="bg-zinc-900 p-4 rounded border border-zinc-700 space-y-3 font-mono text-sm lg:text-base">
-              <div className="text-indigo-300">Formula: <span className="text-indigo-400">{mathData.formula}</span></div>
-              <div className="text-indigo-300">Calculation: <span className="text-green-400">{mathData.calculation}</span></div>
-              <div className="text-indigo-300">Result: <span className="text-yellow-400 text-lg font-bold">{mathData.result}</span></div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (mathData?.type === 'result') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="space-y-6 max-w-md">
-            <h2 className="text-center text-green-400 text-lg lg:text-xl font-bold">{mathData.title}</h2>
-            <div className="bg-zinc-800 p-6 rounded-xl border-2 border-green-500/50">
-              {(mathData.matrix as number[][]).map((row, i) => (
-                <div key={i} className="flex gap-4 justify-center font-mono text-green-300 mb-2">
-                  {row.map((val, j) => (
-                    <div key={j} className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center border-2 border-green-500/50 text-lg font-bold">
+            {mathData.type === 'result' && (
+              <div className="flex justify-center items-center p-4">
+                <div className="grid grid-cols-2 gap-4 bg-zinc-800 p-4 rounded-lg border border-green-500/50">
+                  {(mathData.matrix as number[][]).flat().map((val, idx) => (
+                    <div
+                      key={idx}
+                      className="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center border-2 border-green-500/50 text-lg font-bold font-mono text-green-300"
+                    >
                       {val}
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       );
     }
 
-    if (mathData?.type === 'karatsuba_init') {
+    if (mathData?.type.startsWith('karatsuba')) {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="bg-zinc-800 p-8 rounded-xl border border-cyan-500/50 max-w-md space-y-6">
-            <h2 className="text-center text-cyan-300 text-lg font-bold">{mathData.title}</h2>
-            <div className="space-y-4 font-mono text-base">
-              <div className="bg-zinc-900 p-4 rounded border border-cyan-500/30 text-center">
-                <div className="text-cyan-400 mb-2">X =</div>
-                <div className="text-3xl font-bold text-cyan-300">{mathData.x}</div>
-              </div>
-              <div className="bg-zinc-900 p-4 rounded border border-cyan-500/30 text-center">
-                <div className="text-cyan-400 mb-2">Y =</div>
-                <div className="text-3xl font-bold text-cyan-300">{mathData.y}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
+          <div className="space-y-6 max-w-3xl">
 
-    if (mathData?.type === 'karatsuba_split') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="space-y-4 max-w-lg">
-            <h2 className="text-center text-cyan-300 text-lg font-bold">{mathData.title}</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-zinc-800 p-4 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 font-mono text-sm mb-3">X Split</div>
-                <div className="space-y-2 font-mono text-indigo-300">
+            {mathData.title && (
+              <h2 className="text-center text-cyan-300 text-lg lg:text-xl font-bold">{mathData.title}</h2>
+            )}
+
+            {mathData.type === 'karatsuba_init' && (
+              <div className="grid grid-cols-2 gap-6">
+                {['x', 'y'].map((key) => (
+                  <div key={key} className="bg-zinc-900 p-6 rounded-xl border border-cyan-500/50 text-center font-mono">
+                    <div className="text-cyan-400 mb-2">{key.toUpperCase()}</div>
+                    <div className="text-3xl font-bold text-cyan-300">{mathData[key]}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {mathData.type === 'karatsuba_split' && (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-zinc-900 p-4 rounded border border-cyan-500/50 text-center font-mono">
+                  <div className="text-cyan-400 font-bold mb-2">X Split</div>
                   <div>a (high) = <span className="text-cyan-300 font-bold">{mathData.a}</span></div>
                   <div>b (low) = <span className="text-cyan-300 font-bold">{mathData.b}</span></div>
                 </div>
-              </div>
-              <div className="bg-zinc-800 p-4 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 font-mono text-sm mb-3">Y Split</div>
-                <div className="space-y-2 font-mono text-indigo-300">
+                <div className="bg-zinc-900 p-4 rounded border border-cyan-500/50 text-center font-mono">
+                  <div className="text-cyan-400 font-bold mb-2">Y Split</div>
                   <div>c (high) = <span className="text-cyan-300 font-bold">{mathData.c}</span></div>
                   <div>d (low) = <span className="text-cyan-300 font-bold">{mathData.d}</span></div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
+            )}
 
-    if (mathData?.type === 'karatsuba_products') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="space-y-4 max-w-lg">
-            <h2 className="text-center text-cyan-300 text-lg font-bold">{mathData.title}</h2>
-            <div className="space-y-3 font-mono text-sm">
-              <div className="bg-zinc-800 p-4 rounded border border-cyan-500/50">
-                <div className="text-green-400 mb-2">P1: a × c =</div>
-                <div className="text-2xl font-bold text-green-300">{mathData.ac}</div>
+            {mathData.type === 'karatsuba_products' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {['ac', 'bd', 'gauss'].map((key) => (
+                  <div key={key} className={`bg-zinc-900 p-4 rounded border ${key === 'ac' ? 'border-green-500/50 text-green-300' : key === 'bd' ? 'border-blue-500/50 text-blue-300' : 'border-yellow-500/50 text-yellow-300'} text-center font-mono`}>
+                    <div className="text-sm mb-2">{key.toUpperCase()}</div>
+                    <div className="text-2xl font-bold">{mathData[key]}</div>
+                  </div>
+                ))}
               </div>
-              <div className="bg-zinc-800 p-4 rounded border border-cyan-500/50">
-                <div className="text-blue-400 mb-2">P2: b × d =</div>
-                <div className="text-2xl font-bold text-blue-300">{mathData.bd}</div>
-              </div>
-              <div className="bg-zinc-800 p-4 rounded border border-yellow-500/50">
-                <div className="text-yellow-400 mb-2">P3: (a+b) × (c+d) =</div>
-                <div className="text-2xl font-bold text-yellow-300">{mathData.gauss}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
+            )}
 
-    if (mathData?.type === 'karatsuba_result') {
-      return (
-        <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
-          <div className="bg-zinc-800 p-8 rounded-xl border-2 border-green-500/50 max-w-lg space-y-6">
-            <h2 className="text-center text-green-400 text-lg font-bold">{mathData.title}</h2>
-            <div className="bg-zinc-900 p-4 rounded border border-zinc-700 font-mono text-xs lg:text-sm space-y-3">
-              <div className="text-indigo-300">Result = (P1 × 10⁴) + (P_middle × 10²) + P2</div>
-              <div className="text-indigo-300">= ({mathData.ac} × 10000) + ({mathData.m} × 100) + {mathData.bd}</div>
-              <div className="text-center pt-2 border-t border-zinc-700">
-                <div className="text-green-400 text-sm mb-2">Final Answer:</div>
+            {mathData.type === 'karatsuba_result' && (
+              <div className="bg-zinc-900 p-6 rounded-xl border-2 border-green-500/50 text-center font-mono">
+                <div className="text-indigo-300 mb-2">
+                  Result = (P1 × 10⁴) + (P_middle × 10²) + P2
+                </div>
                 <div className="text-3xl font-bold text-green-300">{mathData.result}</div>
               </div>
-            </div>
+            )}
+
           </div>
         </div>
       );
