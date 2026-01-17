@@ -74,3 +74,11 @@ export interface VisualizationState {
   isPlaying: boolean;
   playbackSpeed: number;
 }
+
+export interface MergeNode {
+  id: number;
+  left: number;
+  right: number;
+  level: number;
+  state?: 'dividing' | 'merging' | 'completed';
+}
