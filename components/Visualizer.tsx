@@ -16,7 +16,6 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
         </marker>
       </defs>
 
-      {/* Edges */}
       {graphState.edges.map((edge, i) => {
         const fromNode = graphState.nodes[edge.from];
         const toNode = graphState.nodes[edge.to];
@@ -41,7 +40,6 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
               strokeWidth={isActive || isMst || isPath || isTargetEdge ? 4 : 2} markerEnd="url(#arrowhead)"
               className="transition-all duration-300" />
 
-            {/* Edge Weight Label with Background for better visibility */}
             <g transform={`translate(${midX}, ${midY})`}>
               <rect x="-12" y="-10" width="24" height="18" rx="4" fill="#18181b" className="opacity-90" />
               <text
@@ -59,7 +57,6 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
         );
       })}
 
-      {/* Nodes */}
       {graphState.nodes.map((node) => {
         let fill = '#18181b';
         let stroke = '#3f3f46';
@@ -87,7 +84,6 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
     </svg>
   );
 
-  // Prepare side data
   const labels: string[] = extraData?.nodeLabels || graphState.nodes.map(n => n.label);
   const distances: any = extraData?.distances;
   const parents: any = extraData?.parents;
@@ -227,7 +223,6 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
   return (
     <div className="w-full h-full overflow-hidden flex items-center justify-center">
       <svg ref={svgRef} className="w-full h-full" viewBox={`0 0 ${svgSize.width} ${svgSize.height}`} preserveAspectRatio="xMidYMid meet">
-        {/* Draw edges */}
         {treeState.map((node, idx) => {
           const leftChild = 2 * idx + 1;
           const rightChild = 2 * idx + 2;
@@ -247,7 +242,6 @@ const TreeView: React.FC<{ treeState: TreeNode[] }> = ({ treeState }) => {
           );
         })}
 
-        {/* Draw nodes */}
         {treeState.map((node, idx) => {
           const pos = positions[idx];
           if (!pos) return null;
@@ -329,7 +323,6 @@ export const MergeView: React.FC<{
       viewBox={`0 0 ${width} ${(maxLevel + 1) * levelHeight + 60}`}
 
     >
-      {/* Connections */}
       {nodes.map(node => {
         const parent = nodes.find(
           p =>
@@ -367,7 +360,6 @@ export const MergeView: React.FC<{
         );
       })}
 
-      {/* Nodes */}
       {nodesByLevel.map((levelNodes, level) =>
         levelNodes.map((node, i) => {
           const x = getX(level, i);
@@ -392,7 +384,6 @@ export const MergeView: React.FC<{
                 strokeWidth={2}
               />
 
-              {/* Values (centered correctly) */}
               {values.map((v, idx) => (
                 <text
                   key={idx}
@@ -612,7 +603,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
   if (type === 'math') {
     const mathData = data as any;
 
-    // Render matrix visualization
     if (mathData?.type === 'matrices') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -641,7 +631,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render submatrices visualization
     if (mathData?.type === 'submatrices') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -667,7 +656,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render M-value visualization
     if (mathData?.type === 'mvalue') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -683,7 +671,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render result matrix
     if (mathData?.type === 'result') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -705,7 +692,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render Karatsuba init
     if (mathData?.type === 'karatsuba_init') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -726,7 +712,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render Karatsuba split
     if (mathData?.type === 'karatsuba_split') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -753,7 +738,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render Karatsuba products
     if (mathData?.type === 'karatsuba_products') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -778,7 +762,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render Karatsuba result
     if (mathData?.type === 'karatsuba_result') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -797,7 +780,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Render Fibonacci sequence
     if (mathData?.type === 'fibonacci') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-8 overflow-auto">
@@ -821,7 +803,6 @@ const Visualizer: React.FC<VisualizerProps> = ({ snapshot, algorithmId }) => {
       );
     }
 
-    // Fallback for unhandled math types (string data)
     if (typeof data === 'string') {
       return (
         <div className="flex items-center justify-center h-full w-full p-4 lg:p-12 overflow-auto">

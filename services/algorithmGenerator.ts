@@ -22,7 +22,7 @@ export const generateSnapshots = (algorithmId: string, inputData: any): Snapshot
     case 'quickhull': generateQuickhull(inputData, snapshots); break;
     case 'strassen': generateStrassen(snapshots); break;
     case 'karatsuba': generateKaratsuba(snapshots); break;
-    case 'fibonacci': generateFibonacci(8, snapshots); break;
+    case 'fibonacci': generateFibonacci(7, snapshots); break;
     case 'backtracking': generateNQueens(4, snapshots); break;
     default:
       snapshots.push({ type: 'array', data: inputData, currentLine: 1, description: "Algorithm implementation pending..." });
@@ -747,7 +747,6 @@ const generateWarshall = (snapshots: Snapshot[]) => {
     });
   }
 
-  // Final snapshot
   snapshots.push({
     type: 'matrix',
     data: reach.map(r => r.map(v => (v ? 1 : Infinity))),
@@ -1176,6 +1175,19 @@ const generateFibonacci = (n: number, snapshots: Snapshot[]) => {
       description: `Adding terms: ${fib[i - 1]} + ${fib[i - 2]} = ${fib[i]}`
     });
   }
+
+  snapshots.push({
+    type: 'math',
+    data: { 
+      type: 'fibonacci', 
+      sequence: [...fib], 
+      activeIndices: [n],
+      step: n, 
+      title: `Final Fibonacci sequence up to F(${n})` 
+    },
+    currentLine: 4,
+    description: `Computation complete! Fibonacci sequence: [${fib.join(', ')}]`
+  });
 };
 
 const generateNQueens = (n: number, snapshots: Snapshot[]) => {
