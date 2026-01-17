@@ -14,15 +14,14 @@ export const ALGORITHMS: Algorithm[] = [
   { id: 'binary-search', name: 'Binary Search', category: 'Searching', description: 'Searches a sorted array by repeatedly halving the search interval.', code: `while (l <= r) {\n  let m = (l+r)/2;\n  if (arr[m] === x) return m;\n  if (arr[m] < x) l = m + 1;\n  else r = m - 1;\n}` },
   
   // Graph
-  { id: 'dijkstra', name: "Dijkstra's", category: 'Graph', description: 'Finds shortest paths from a source node.', code: `while (pq) {\n  let u = pq.pop();\n  for (let v of adj[u]) {\n    if (d[u] + w < d[v]) d[v] = d[u] + w;\n  }\n}` },
-  { id: 'kruskal', name: "Kruskal's", category: 'Graph', description: 'Finds MST using sorted edges and DSU.', code: `edges.sort();\nfor (let e of edges) {\n  if (find(e.u) !== find(e.v)) {\n    union(e.u, e.v); mst.push(e);\n  }\n}` },
+  { id: 'dijkstra', name: "Dijkstra", category: 'Graph', description: 'Finds shortest paths from a source node.', code: `while (pq) {\n  let u = pq.pop();\n  for (let v of adj[u]) {\n    if (d[u] + w < d[v]) d[v] = d[u] + w;\n  }\n}` },
+  { id: 'kruskal', name: "Kruskal", category: 'Graph', description: 'Finds MST using sorted edges and DSU.', code: `edges.sort();\nfor (let e of edges) {\n  if (find(e.u) !== find(e.v)) {\n    union(e.u, e.v); mst.push(e);\n  }\n}` },
   { id: 'bellman-ford', name: 'Bellman-Ford', category: 'Graph', description: 'Shortest paths with negative weights.', code: `for (let i = 0; i < V-1; i++) {\n  for (let {u,v,w} of edges) {\n    if (d[u] + w < d[v]) d[v] = d[u] + w;\n  }\n}` },
   { id: 'floyd-warshall', name: 'Floyd-Warshall', category: 'Graph', description: 'All-pairs shortest paths.', code: `for (k) for (i) for (j)\n  if (d[i][j] > d[i][k] + d[k][j])\n    d[i][j] = d[i][k] + d[k][j];` },
-  { id: 'prim', name: "Prim's", category: 'Graph', description: 'Finds MST by growing from a starting node.', code: `while (mst.size < V) {\n  let e = minEdge(mstSet, nonMstSet);\n  mstSet.add(e.v); mst.push(e);\n}` },
-  { id: 'warshall', name: "Warshall's", category: 'Graph', description: 'Computes transitive closure of a graph.', code: `for (k) for (i) for (j)\n  reach[i][j] = reach[i][j] || (reach[i][k] && reach[k][j]);` },
-
+  { id: 'prim', name: "Prim", category: 'Graph', description: 'Finds MST by growing from a starting node.', code: `while (mst.size < V) {\n  let e = minEdge(mstSet, nonMstSet);\n  mstSet.add(e.v); mst.push(e);\n}` },
+  { id: 'warshall', name: "Warshall", category: 'Graph', description: 'Computes transitive closure of a graph.', code: `for (k) for (i) for (j)\n  reach[i][j] = reach[i][j] || (reach[i][k] && reach[k][j]);` },
   // Geometry
-  { id: 'shamos', name: 'Shamos-Hoey', category: 'Geometry', description: 'Finds the closest pair of points.', code: `function closest(P) {\n  if (P.length <= 3) return brute(P);\n  let d = min(closest(L), closest(R));\n  return min(d, stripMin(S, d));\n}` },
+  { id: 'shamos', name: 'Shamos', category: 'Geometry', description: 'Finds the closest pair of points.', code: `function closest(P) {\n  if (P.length <= 3) return brute(P);\n  let d = min(closest(L), closest(R));\n  return min(d, stripMin(S, d));\n}` },
   { id: 'quickhull', name: 'Quickhull', category: 'Geometry', description: 'Divide and conquer convex hull algorithm.', code: `function quickHull(points, p1, p2) {\n  let pMax = findFurthest(points, p1, p2);\n  return [...quickHull(S1, p1, pMax), ...quickHull(S2, pMax, p2)];\n}` },
 
   // Math
