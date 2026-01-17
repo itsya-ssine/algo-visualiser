@@ -325,9 +325,9 @@ export const MergeView: React.FC<{
   return (
     <svg
       width="100%"
-      height={(maxLevel + 1) * levelHeight + 60}
+      height="100%"
       viewBox={`0 0 ${width} ${(maxLevel + 1) * levelHeight + 60}`}
-      className="bg-[#09090b]"
+      
     >
       {/* Connections */}
       {nodes.map(node => {
