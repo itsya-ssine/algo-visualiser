@@ -30,9 +30,9 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedId, onSelect }) => {
       <div className="p-6 border-b border-zinc-800 flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-            ENSAKH-ALGO
+            ALGO-VIS
           </h1>
-          <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">By Elmajdoubi Yassine</p>
+          <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest font-bold">By @yelmajdo</p>
         </div>
       </div>
 
