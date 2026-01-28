@@ -1,3 +1,4 @@
+
 import React from 'react';
 import VisualizationArea from './VisualizationArea';
 import AlgorithmInsight from './AlgorithmInsight';
@@ -7,14 +8,20 @@ interface ContentAreaProps {
   snapshot: Snapshot;
   algorithmId: string;
   algorithmDescription: string;
+  timeComplexity: string;
+  spaceComplexity: string;
   snapshotDescription: string;
+  onViewCode: () => void;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({
   snapshot,
   algorithmId,
   algorithmDescription,
-  snapshotDescription
+  timeComplexity,
+  spaceComplexity,
+  snapshotDescription,
+  onViewCode
 }) => {
   return (
     <div className="flex-1 flex flex-col overflow-hidden p-3 lg:p-6 gap-3 lg:gap-6">
@@ -23,7 +30,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         algorithmId={algorithmId}
         description={snapshotDescription}
       />
-      <AlgorithmInsight description={algorithmDescription} />
+      <AlgorithmInsight 
+        description={algorithmDescription} 
+        timeComplexity={timeComplexity}
+        spaceComplexity={spaceComplexity}
+        onViewCode={onViewCode} 
+      />
     </div>
   );
 };
