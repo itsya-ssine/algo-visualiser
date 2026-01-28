@@ -1,12 +1,21 @@
 
 export type AlgorithmCategory = 'Sorting' | 'Searching' | 'Graph' | 'Geometry' | 'Math' | 'Backtracking' | 'Dynamic Programming';
 
+export interface CodeVariants {
+  js: string;
+  python: string;
+  cpp: string;
+  java: string;
+}
+
 export interface Algorithm {
   id: string;
   name: string;
   category: AlgorithmCategory;
   description: string;
-  code: string;
+  codeVariants: CodeVariants;
+  timeComplexity: string;
+  spaceComplexity: string;
 }
 
 export interface GraphNode {
@@ -31,7 +40,6 @@ export interface Point {
   state?: 'default' | 'active' | 'hull' | 'closest';
 }
 
-// Added TreeNode interface to support Tree visualization
 export interface TreeNode {
   id: number;
   value: string | number;
@@ -39,11 +47,9 @@ export interface TreeNode {
 }
 
 export interface Snapshot {
-  // Updated type union to include 'tree' and 'merge' for extended visualization support
   type: 'array' | 'graph' | 'grid' | 'matrix' | 'points' | 'math' | 'tree' | 'merge';
   data: any;
   activeIndices?: number[];
-  // Added minIndices to fix property access errors in sorting algorithm generation
   minIndices?: number[];
   markers?: { [key: string]: any };
   currentLine: number;
@@ -53,9 +59,7 @@ export interface Snapshot {
     edges: GraphEdge[];
   };
   points?: Point[];
-  // Added treeState to fix property access errors in tree visualization components
   treeState?: TreeNode[];
-  // Added mergeState to fix property access errors in merge sort visualization components
   mergeState?: { nodes: MergeNode[]; array: number[] };
 }
 
