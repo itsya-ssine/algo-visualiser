@@ -60,7 +60,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStart }) => {
 
       <footer className="w-full py-8 border-t border-zinc-900/50 bg-zinc-950 text-center">
         <p className="text-zinc-600 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] px-4">
-          Designed for Students &middot; ENSAKH-ALGO &middot; Yassine Elmajdoubi
+          Designed for Students &middot; ALGO-VIS &middot; @yelmajdo
         </p>
       </footer>
     </div>
