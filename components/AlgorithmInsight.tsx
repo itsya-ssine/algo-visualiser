@@ -11,7 +11,7 @@ interface AlgorithmInsightProps {
 
 const AlgorithmInsight: React.FC<AlgorithmInsightProps> = ({ description, timeComplexity, spaceComplexity, onViewCode }) => {
   return (
-    <div className="flex-1 min-h-[10px] lg:min-h-[10px] max-h-[108px] bg-zinc-900/40 border border-zinc-800 rounded-xl lg:rounded-2xl p-3 lg:p-4 overflow-hidden flex flex-col lg:flex-row lg:items-center gap-4 shadow-xl shrink-0">
+    <div className="flex-1 min-h-[10px] lg:min-h-[10px] max-h-[128px] bg-zinc-900/40 border border-zinc-800 rounded-xl lg:rounded-2xl p-3 lg:p-4 overflow-hidden flex flex-col lg:flex-row lg:items-center gap-4 shadow-xl shrink-0">
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 mb-1 lg:mb-1.5 text-zinc-500">
           <Terminal size={14} />
