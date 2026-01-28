@@ -2,7 +2,7 @@
 import React from 'react';
 import { ALGORITHMS } from '../constants';
 import { Algorithm, AlgorithmCategory } from '../types';
-import { Terminal, Search, Share2, Layers, Cpu, Box, RotateCcw, Github, Instagram } from 'lucide-react';
+import { Terminal, Search, Share2, Layers, Cpu, Box, RotateCcw, Github, Globe } from 'lucide-react';
 
 interface SidebarProps {
   selectedId: string;
@@ -81,14 +81,14 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedId, onSelect }) => {
             <Github size={20} />
           </a>
           <a
-            href="https://www.instagram.com/0x_naoki?igsh=cGN5ejZpYmszMjR2"
+            href="https://profile-v3.intra.42.fr/users/yelmajdo"
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
             title="Instagram"
             aria-label="Instagram"
           >
-            <Instagram size={20} />
+            <Globe size={20} />
           </a>
         </div>
       </div>
