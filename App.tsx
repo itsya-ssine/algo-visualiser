@@ -4,10 +4,12 @@ import Sidebar from './components/Sidebar';
 import Visualizer from './components/Visualizer';
 import Controls from './components/Controls';
 import WelcomePage from './components/Home';
+import CodeModal from './components/CodeModal';
 import { ALGORITHMS } from './constants';
 import { Snapshot, Point } from './types';
 import { generateSnapshots } from './services/algorithmGenerator';
-import { Info, Terminal, Settings, Menu } from 'lucide-react';
+import { Info, Terminal, Settings, Menu, Code2 } from 'lucide-react';
+import AlgorithmInsight from './components/AlgorithmInsight';
 
 const INITIAL_ARRAY_SIZE = 12;
 const INITIAL_POINTS_SIZE = 15;
@@ -24,6 +26,7 @@ const generateRandomPoints = (size: number): Point[] => {
 
 const App: React.FC = () => {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
   const [selectedAlgoId, setSelectedAlgoId] = useState(ALGORITHMS[0].id);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
@@ -91,7 +94,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-dvh bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row">
+    <div className="flex h-screen bg-zinc-950 overflow-hidden text-zinc-100 flex-col lg:flex-row">
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
@@ -118,9 +121,17 @@ const App: React.FC = () => {
               <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Active</span>
             </div>
           </div>
-          <button onClick={initAlgorithm} className="px-2 lg:px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-2 shrink-0">
-            <Settings size={14} /> <span className="hidden sm:inline">New Input</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsCodeModalOpen(true)}
+              className="hidden sm:flex px-3 py-1.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 rounded-lg text-xs font-bold transition-colors items-center gap-2 shrink-0"
+            >
+              <Code2 size={14} /> View Code
+            </button>
+            <button onClick={initAlgorithm} className="px-2 lg:px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg text-xs font-medium transition-colors flex items-center gap-2 shrink-0">
+              <Settings size={14} /> <span className="hidden sm:inline">New Input</span>
+            </button>
+          </div>
         </header>
 
         <div className="flex-1 flex flex-col overflow-hidden p-3 lg:p-6 gap-3 lg:gap-6">
@@ -130,19 +141,20 @@ const App: React.FC = () => {
             </div>
             <div className="h-auto min-h-[48px] bg-zinc-800/50 border-t border-zinc-800 flex items-center px-4 py-2 shrink-0">
               <div className="flex items-start lg:items-center gap-2 text-xs text-zinc-200">
-                <Info size={14} className="text-indigo-400 mt-0.5 lg:mt-0 shrink-0" />
+                <div className="p-1 bg-indigo-500/20 rounded">
+                  <Info size={14} className="text-indigo-400 shrink-0" />
+                </div>
                 <span className="font-medium leading-tight">{currentSnapshot.description}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 min-h-[80px] max-h-[120px] lg:max-h-[60px] bg-zinc-900/40 border border-zinc-800 rounded-xl lg:rounded-2xl p-3 lg:p-4 overflow-hidden flex flex-col shadow-xl shrink-0">
-            <div className="flex items-center gap-2 mb-1.5 lg:mb-2 text-zinc-500">
-              <Terminal size={14} />
-              <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-widest">Algorithm Insight</span>
-            </div>
-            <p className="text-[11px] lg:text-xs text-zinc-400 leading-relaxed overflow-y-auto pr-2">{selectedAlgo.description}</p>
-          </div>
+          <AlgorithmInsight 
+            description={selectedAlgo.description} 
+            timeComplexity={selectedAlgo.timeComplexity}
+            spaceComplexity={selectedAlgo.spaceComplexity}
+            onViewCode={() => setIsCodeModalOpen(true)} 
+          />
         </div>
 
         <Controls
@@ -153,6 +165,13 @@ const App: React.FC = () => {
           totalSteps={snapshots.length}
         />
       </main>
+
+      <CodeModal 
+        isOpen={isCodeModalOpen} 
+        onClose={() => setIsCodeModalOpen(false)}
+        algorithmName={selectedAlgo.name}
+        codeVariants={selectedAlgo.codeVariants}
+      />
     </div>
   );
 };
