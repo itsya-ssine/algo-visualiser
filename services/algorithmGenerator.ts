@@ -12,6 +12,8 @@ export const generateSnapshots = (algorithmId: string, inputData: any): Snapshot
     case 'merge-sort': generateMergeSort([...inputData], snapshots); break;
     case 'heap-sort': generateHeapSort([...inputData], snapshots); break;
     case 'binary-search': generateBinarySearch([...inputData].sort((a, b) => a - b), 52, snapshots); break;
+    case 'breadth-first-search': generateBFS(snapshots); break;
+    case 'depth-first-search': generateDFS(snapshots); break;
     case 'dijkstra': generateDijkstra(snapshots); break;
     case 'kruskal': generateKruskal(snapshots); break;
     case 'bellman-ford': generateBellmanFord(snapshots); break;
@@ -390,6 +392,191 @@ const generateDijkstra = (snapshots: Snapshot[]) => {
     },
     currentLine: 12,
     description: `Done! All nodes visited. Shortest distances found: ${nodes.map(n => `${n.label}=${d[n.id] === Infinity ? '∞' : d[n.id]}`).join(', ')}`
+  });
+};
+
+const generateBFS = (snapshots: Snapshot[]) => {
+  let { nodes, edges } = createDefaultGraph();
+  const adj = new Map<number, number[]>();
+  nodes.forEach(n => adj.set(n.id, []));
+  edges.forEach(e => {
+    // Treat the graph as directed: only follow edges from 'from' -> 'to'
+    adj.get(e.from)!.push(e.to);
+  });
+
+  const visited = new Set<number>();
+  const queue: number[] = [];
+  const order: number[] = [];
+
+  visited.add(0);
+  queue.push(0);
+
+  snapshots.push({
+    type: 'graph',
+    data: { order: [...order], queue: [...queue] },
+    graphState: {
+      nodes: nodes.map(n => ({
+        ...n,
+        state: n.id === 0 ? 'current' : 'unvisited'
+      })),
+      edges: edges.map(e => ({ ...e, state: 'default' as const }))
+    },
+    currentLine: 1,
+    description: `Starting BFS from node ${nodes[0].label}`
+  });
+
+  while (queue.length) {
+    const u = queue.shift()!;
+    order.push(u);
+
+    snapshots.push({
+      type: 'graph',
+      data: { order: [...order], queue: [...queue] },
+      graphState: {
+        nodes: nodes.map(n => ({
+          ...n,
+          state: visited.has(n.id) ? 'visited' : (n.id === u ? 'current' : 'unvisited')
+        })),
+        edges: edges.map(e => ({ ...e, state: 'default' as const }))
+      },
+      currentLine: 2,
+      description: `Dequeued ${nodes[u].label} from queue`
+    });
+
+    for (const v of adj.get(u) || []) {
+      if (!visited.has(v)) {
+        snapshots.push({
+          type: 'graph',
+          data: { order: [...order], queue: [...queue, v] },
+          graphState: {
+            nodes: nodes.map(n => ({
+              ...n,
+              state: visited.has(n.id)
+                ? 'visited'
+                : (n.id === u ? 'current' : (n.id === v ? 'neighbor' : 'unvisited'))
+            })),
+            edges: edges.map(e => ({
+              ...e,
+              state: (e.from === u && e.to === v) || (e.from === v && e.to === u)
+                ? 'active' as const
+                : 'default' as const
+            }))
+          },
+          currentLine: 3,
+          description: `Discovered neighbor ${nodes[v].label} from ${nodes[u].label}`
+        });
+
+        visited.add(v);
+        queue.push(v);
+      }
+    }
+  }
+
+  snapshots.push({
+    type: 'graph',
+    data: { order: [...order], queue: [] },
+    graphState: {
+      nodes: nodes.map(n => ({ ...n, state: 'visited' })),
+      edges: edges.map(e => ({ ...e, state: 'default' as const }))
+    },
+    currentLine: 4,
+    description: 'BFS complete. All reachable nodes visited.'
+  });
+};
+
+const generateDFS = (snapshots: Snapshot[]) => {
+  let { nodes, edges } = createDefaultGraph();
+  const adj = new Map<number, number[]>();
+  nodes.forEach(n => adj.set(n.id, []));
+  edges.forEach(e => {
+    // Treat the graph as directed: only follow edges from 'from' -> 'to'
+    adj.get(e.from)!.push(e.to);
+  });
+
+  const visited = new Set<number>();
+  const stack: number[] = [];
+  const order: number[] = [];
+
+  const pushState = (u: number) => {
+    stack.push(u);
+    snapshots.push({
+      type: 'graph',
+      data: { order: [...order], stack: [...stack] },
+      graphState: {
+        nodes: nodes.map(n => ({
+          ...n,
+          state: visited.has(n.id) ? 'visited' : (n.id === u ? 'current' : 'unvisited')
+        })),
+        edges: edges.map(e => ({ ...e, state: 'default' as const }))
+      },
+      currentLine: 1,
+      description: `Pushed ${nodes[u].label} onto stack`,
+    });
+  };
+
+  const popState = (u: number) => {
+    stack.pop();
+    snapshots.push({
+      type: 'graph',
+      data: { order: [...order], stack: [...stack] },
+      graphState: {
+        nodes: nodes.map(n => ({
+          ...n,
+          state: visited.has(n.id) ? 'visited' : (n.id === u ? 'current' : 'unvisited')
+        })),
+        edges: edges.map(e => ({ ...e, state: 'default' as const }))
+      },
+      currentLine: 3,
+      description: `Popped ${nodes[u].label} from stack (backtracking)`
+    });
+  };
+
+  const dfs = (u: number) => {
+    visited.add(u);
+    order.push(u);
+    pushState(u);
+
+    for (const v of adj.get(u) || []) {
+      if (!visited.has(v)) {
+        snapshots.push({
+          type: 'graph',
+          data: { order: [...order], stack: [...stack] },
+          graphState: {
+            nodes: nodes.map(n => ({
+              ...n,
+              state: visited.has(n.id)
+                ? 'visited'
+                : (n.id === u ? 'current' : (n.id === v ? 'neighbor' : 'unvisited'))
+            })),
+            edges: edges.map(e => ({
+              ...e,
+              state: (e.from === u && e.to === v) || (e.from === v && e.to === u)
+                ? 'active' as const
+                : 'default' as const
+            }))
+          },
+          currentLine: 2,
+          description: `Traversing edge ${nodes[u].label} → ${nodes[v].label}`
+        });
+
+        dfs(v);
+      }
+    }
+
+    popState(u);
+  };
+
+  dfs(0);
+
+  snapshots.push({
+    type: 'graph',
+    data: { order: [...order], stack: [] },
+    graphState: {
+      nodes: nodes.map(n => ({ ...n, state: 'visited' })),
+      edges: edges.map(e => ({ ...e, state: 'default' as const }))
+    },
+    currentLine: 4,
+    description: 'DFS complete. All reachable nodes visited.'
   });
 };
 

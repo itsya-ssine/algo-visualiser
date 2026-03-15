@@ -87,8 +87,12 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
   const labels: string[] = extraData?.nodeLabels || graphState.nodes.map(n => n.label);
   const distances: any = extraData?.distances;
   const parents: any = extraData?.parents;
+  const order: number[] | undefined = extraData?.order;
+  const queue: number[] | undefined = extraData?.queue;
+  const stack: number[] | undefined = extraData?.stack;
   const hasDistances = distances && Object.keys(distances).length > 0;
   const hasParents = parents && Object.keys(parents).length > 0;
+  const hasTraversal = (order && order.length > 0) || (queue && queue.length > 0) || (stack && stack.length > 0);
 
   return (
     <div className="w-full h-full overflow-auto p-3">
@@ -132,6 +136,55 @@ const GraphView: React.FC<{ graphState: { nodes: GraphNode[], edges: GraphEdge[]
                     </span>
                   </div>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {hasTraversal && (
+            <section>
+              <h4 className="text-zinc-500 font-bold text-[10px] uppercase tracking-widest mb-3 flex items-center gap-2 shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                Traversal State
+              </h4>
+              <div className="space-y-2">
+                {order && order.length > 0 && (
+                  <div className="text-xs text-zinc-300">
+                    <div className="font-semibold text-zinc-200 mb-1">Visit order</div>
+                    <div className="flex flex-wrap gap-1">
+                      {order.map((id, idx) => (
+                        <span key={`order-${idx}`} className="px-2 py-1 rounded-md bg-zinc-800/60 border border-zinc-700 text-[10px]">
+                          {labels[id] ?? id}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {queue && queue.length > 0 && (
+                  <div className="text-xs text-zinc-300">
+                    <div className="font-semibold text-zinc-200 mb-1">Queue</div>
+                    <div className="flex flex-wrap gap-1">
+                      {queue.map((id, idx) => (
+                        <span key={`queue-${idx}`} className="px-2 py-1 rounded-md bg-zinc-800/60 border border-zinc-700 text-[10px]">
+                          {labels[id] ?? id}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {stack && stack.length > 0 && (
+                  <div className="text-xs text-zinc-300">
+                    <div className="font-semibold text-zinc-200 mb-1">Stack</div>
+                    <div className="flex flex-wrap gap-1">
+                      {stack.map((id, idx) => (
+                        <span key={`stack-${idx}`} className="px-2 py-1 rounded-md bg-zinc-800/60 border border-zinc-700 text-[10px]">
+                          {labels[id] ?? id}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           )}

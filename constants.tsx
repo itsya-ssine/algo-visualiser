@@ -1128,6 +1128,207 @@ public class Prim {
 }`
     }
   },
+  {
+    id: 'breadth-first-search',
+    name: 'Breadth-First Search',
+    category: 'Graph',
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    description: 'Traverses a graph level-by-level from a starting node.',
+    codeVariants: {
+      js: `function bfs(graph, start) {
+  const visited = new Set();
+  const queue = [start];
+  const order = [];
+
+  visited.add(start);
+
+  while (queue.length) {
+    const node = queue.shift();
+    order.push(node);
+    for (const neighbor of graph[node] || []) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  return order;
+}`,
+      python: `from collections import deque
+
+def bfs(graph, start):
+    visited = set([start])
+    queue = deque([start])
+    order = []
+
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return order`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> bfs(const vector<vector<int>>& graph, int start) {
+    vector<bool> visited(graph.size(), false);
+    queue<int> q;
+    vector<int> order;
+
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        order.push_back(node);
+
+        for (int neigh : graph[node]) {
+            if (!visited[neigh]) {
+                visited[neigh] = true;
+                q.push(neigh);
+            }
+        }
+    }
+
+    return order;
+}`,
+      java: `import java.util.*;
+
+public class BFS {
+    public static List<Integer> bfs(Map<Integer, List<Integer>> graph, int start) {
+        Set<Integer> visited = new HashSet<>();
+        Queue<Integer> queue = new LinkedList<>();
+        List<Integer> order = new ArrayList<>();
+
+        visited.add(start);
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            order.add(node);
+
+            for (int neighbor : graph.getOrDefault(node, Collections.emptyList())) {
+                if (!visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        return order;
+    }
+}`
+    }
+  },
+  {
+    id: 'depth-first-search',
+    name: 'Depth-First Search',
+    category: 'Graph',
+    timeComplexity: 'O(V + E)',
+    spaceComplexity: 'O(V)',
+    description: 'Explores as far as possible along each branch before backtracking.',
+    codeVariants: {
+      js: `function dfs(graph, start) {
+  const visited = new Set();
+  const order = [];
+  const stack = [start];
+
+  while (stack.length) {
+    const node = stack.pop();
+    if (visited.has(node)) continue;
+
+    visited.add(node);
+    order.push(node);
+
+    for (const neighbor of (graph[node] || []).slice().reverse()) {
+      if (!visited.has(neighbor)) {
+        stack.push(neighbor);
+      }
+    }
+  }
+
+  return order;
+}`,
+      python: `def dfs(graph, start):
+    visited = set()
+    stack = [start]
+    order = []
+
+    while stack:
+        node = stack.pop()
+        if node in visited:
+            continue
+        visited.add(node)
+        order.append(node)
+
+        for neighbor in reversed(graph.get(node, [])):
+            if neighbor not in visited:
+                stack.append(neighbor)
+
+    return order`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> dfs(const vector<vector<int>>& graph, int start) {
+    vector<bool> visited(graph.size(), false);
+    stack<int> s;
+    vector<int> order;
+
+    s.push(start);
+    while (!s.empty()) {
+        int node = s.top();
+        s.pop();
+
+        if (visited[node]) continue;
+        visited[node] = true;
+        order.push_back(node);
+
+        for (auto it = graph[node].rbegin(); it != graph[node].rend(); ++it) {
+            if (!visited[*it]) {
+                s.push(*it);
+            }
+        }
+    }
+
+    return order;
+}`,
+      java: `import java.util.*;
+
+public class DFS {
+    public static List<Integer> dfs(Map<Integer, List<Integer>> graph, int start) {
+        Set<Integer> visited = new HashSet<>();
+        Deque<Integer> stack = new ArrayDeque<>();
+        List<Integer> order = new ArrayList<>();
+
+        stack.push(start);
+
+        while (!stack.isEmpty()) {
+            int node = stack.pop();
+            if (visited.contains(node)) continue;
+
+            visited.add(node);
+            order.add(node);
+
+            List<Integer> neighbors = graph.getOrDefault(node, Collections.emptyList());
+            for (int i = neighbors.size() - 1; i >= 0; i--) {
+                int neighbor = neighbors.get(i);
+                if (!visited.contains(neighbor)) {
+                    stack.push(neighbor);
+                }
+            }
+        }
+
+        return order;
+    }
+}`
+    }
+  },
   // Geometry
   {
     id: 'shamos',
